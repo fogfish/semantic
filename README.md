@@ -6,10 +6,11 @@ Semantic Web ToolKit for Erlang applications
 
 ## Inspiration
 
-Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement. The library solve a following aspects:
+Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application and defines an data model (abstract syntax) to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement / triples. The library solve a following aspects:
 * define Erlang native format for knowledge statement; its serialization to various external formats
 * provide common rules for data type mapping between Semantic Web and Erlang application
 * resolve complexity of IRI identity through prefixes and urn-base schema
+
 
 
 ## Getting started
@@ -39,7 +40,7 @@ make run
 
 ### Native format
 
-The library expresses knowledge fact(s) using map as container type. 
+The library expresses knowledge fact(s) using map as container type. (todo: evaluate abstract knowledge statement produces by reading RDF sources).
 
 ```erlang
 -type spo()  :: #{s => s(), p => p(), o => o(), type => lang() | type()}.
@@ -55,6 +56,8 @@ tbd
 
 ### More Information
 
+* [RDF 1.1 -- Concepts and Abstract Syntax](http://www.w3.org/TR/2014/PR-rdf11-concepts-20140109/)
+* [JSON-LD 1.0 -- A JSON-based Serialization for Linked Data](http://www.w3.org/TR/json-ld/)
 * study [native interface](src/semantic.erl)
 * supported [data type](doc/datatype.md)
 
@@ -91,6 +94,10 @@ If you detect a bug, please bring it to our attention via GitHub issues. Please 
 - specify the configuration of your environment, including which operating system you're using and the versions of your runtime environments
 - attach logs, screen shots and/or exceptions if possible
 - briefly summarize the steps you took to resolve or reproduce the problem
+
+## References
+
+1. http://www.w3.org/TR/2014/PR-rdf11-concepts-20140109/
 
 
 ## License
