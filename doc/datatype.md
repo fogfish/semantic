@@ -10,6 +10,8 @@ The knowledge statements contains a scalar objects -- literals. Literals are eit
 
 The binary data-type represents character strings in knowledge statements. The language strings are annotated with corresponding tag.
 
+Lang | Data type
+--- | ---
 Erlang | `-type binary().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#string"
 
