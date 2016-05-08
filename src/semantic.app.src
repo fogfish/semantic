@@ -1,0 +1,14 @@
+{application, semantic,
+   [
+      {description, "semantic web toolkit"},
+      {vsn,         "0.0.0"},
+      {modules,     []},
+      {registered,  []},
+      {applications,[
+         kernel
+        ,stdlib
+      ]},
+      {mod, {semantic_app, []}},
+      {env, []}
+   ]
+}.  
