@@ -11,7 +11,7 @@ The knowledge statements contains a scalar objects -- literals. Literals are eit
 The binary data-type represents character strings in knowledge statements. The language strings are annotated with corresponding tag.
 
 Lang | Data type
---- | ---
+---  | ---
 Erlang | `-type binary().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#string"
 
@@ -20,6 +20,8 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#string"
 
 The library derives an arbitrary-precision Integers from Erlang (only limited by available memory on the machine).
 
+Lang | Data type
+---  | ---
 Erlang | `-type integer().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#integer"
     | xmlns:xsd="http://www.w3.org/2001/XMLSchema#long"
@@ -33,6 +35,8 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#integer"
 
 The value is the IEEE 754 double-precision 64-bit floating point type.
 
+Lang | Data type
+---  | ---
 Erlang | `-type float().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#decimal"
     | xmlns:xsd="http://www.w3.org/2001/XMLSchema#float"
@@ -44,6 +48,8 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#decimal"
 
 The value is either true or false, representing a logic values
 
+Lang | Data type
+---  | ---
 Erlang | `-type true | false.`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#boolean"
 
@@ -54,7 +60,8 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#boolean"
 
 The date-time value is closely related to calendar dates and times described by ISO 8601, covering AD and BC eras. Erlang native date format is triple of integers giving micro-seconds precision (see tempus interface). The external representation is ISO 8601. 
 
-
+Lang | Data type
+---  | ---
 Erlang | `-type {integer(), integer(), integer()}.`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#dateTime"
     | xmlns:xsd="http://www.w3.org/2001/XMLSchema#date"
@@ -74,6 +81,8 @@ Note that library uses same native format to manipulate with:
 
 XSD defines set of recursive data-types. They are not yet natively supported by library and translated as strings
 
+Lang | Data type
+---  | ---
 Erlang | `-type binary().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
     | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonth"
@@ -84,6 +93,8 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
 
 The geographical coordinates are hashed using GeoHash, ensuring 3.7cm x 1.8cm precision. The hashing is only applied to `georss:point`. Other formats are not supported yet.
 
+Lang | Data type
+---  | ---
 Erlang | `-type binary().`
 RDF | xmlns:xsd="http://www.georss.org/georss/"
 
