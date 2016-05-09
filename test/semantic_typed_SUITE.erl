@@ -63,7 +63,7 @@ groups() ->
 %%%
 %%%----------------------------------------------------------------------------   
 init_per_suite(Config) ->
-   semantic:prefix(),
+   ok = semantic:prefixes(),
    Config.
 
 end_per_suite(_Config) ->
@@ -109,7 +109,7 @@ spo_with_lang_string(_Config) ->
       p := {uri, <<"foaf:name">>},
       o := <<"text">>
    } = semantic:typed( decode(A) ),
-   {lang, <<"en">>} = semantic:typeof(T).
+   <<"en">> = semantic:typeof(T).
 
 
 spo_with_integer(_Config) ->

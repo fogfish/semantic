@@ -18,8 +18,12 @@
 -module(semantic).
 
 -export([
-   prefix/0,
-   prefix/3,
+   prefixes/0,
+   prefixes/1,
+   prefix/1,
+   define/2
+]).
+-export([
    typed/1,
    typed/2,
    typeof/1,
@@ -36,37 +40,72 @@
 -type o()    :: uri() | lit().
 -type uri()  :: {uri, binary()}.
 -type lit()  :: binary() | integer() | float() | boolean() | {_, _, _}.
--type lang() :: {lang, binary()}.
+-type lang() :: binary().
 -type type() :: integer | float | boolean | datetime | binary | geohash | uri.
 
+%%%------------------------------------------------------------------
+%%%
+%%% schema interface
+%%%
+%%%------------------------------------------------------------------
 
 %%
 %% configure built-in namespace prefixes 
--spec prefix() -> ok.
+-spec prefixes() -> ok.
 
-prefix() ->
-   prefix(semantic_ns_encode, semantic_ns_decode, 
+prefixes() ->
+   prefixes( filename:join([code:priv_dir(?MODULE), "prefixes.nt"]) ).
+
+prefixes(File) ->
+   prefixes(semantic_ns_encode, semantic_ns_decode, 
       semantic_nt:stream(
-         stdio:file( 
-            filename:join([code:priv_dir(?MODULE), "prefixes.nt"]) 
-         )
+         stdio:file(File)
       )
    ).
 
-%%
-%% configure application specific namespace prefixes
--spec prefix(atom(), atom(), datum:stream() | list()) -> ok.
+prefixes(Enc, Dec, {s, _, _} = Kns) ->
+   prefixes(Enc, Dec, stream:list(Kns));
 
-prefix(Enc, Dec, {s, _, _} = Kns) ->
-   prefix(Enc, Dec, stream:list(Kns));
-
-prefix(Enc, Dec, Kns)
+prefixes(Enc, Dec, Kns)
  when is_list(Kns) ->
    {module, Enc} = semantic_ns:encoder(Enc, Kns),
    {module, Dec} = semantic_ns:decoder(Dec, Kns),
    ok.
-   
 
+%%
+%% encode uri prefix
+prefix(Uri) ->
+   semantic_ns_encode:q(undefined, Uri).
+
+%%
+%% define predicate meta-data
+-spec define(binary(), type() | lang()) -> [spo()].
+
+define(Predicate, uri) ->
+   [
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}}
+   ];
+define(Predicate, Type)
+ when is_atom(Type) ->
+   [
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}},
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => semantic_typed:typeof(Type)}
+   ];
+define(Predicate, Lang)
+ when is_binary(Lang) ->
+   [
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}},
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => {uri, <<"rdf:langString">>}},
+      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => Lang}
+   ].
+
+
+%%%------------------------------------------------------------------
+%%%
+%%% type-safe triple interface
+%%%
+%%%------------------------------------------------------------------
+   
 %%
 %% map abstract knowledge statement to Erlang native representation 
 -spec typed(_) -> spo().
@@ -86,6 +125,11 @@ typed(Prefix, Fact) ->
 typeof(Fact) ->
    semantic_typed:typeof(Fact).
 
+%%%------------------------------------------------------------------
+%%%
+%%% intake interface
+%%%
+%%%------------------------------------------------------------------
 
 %%
 %% build stream of abstract knowledge statements from n-triples.

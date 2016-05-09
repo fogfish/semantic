@@ -29,8 +29,16 @@ typeof(#{o := X}) when is_integer(X) -> integer;
 typeof(#{o := X}) when is_float(X)   -> float;
 typeof(#{o := X}) when is_boolean(X) -> boolean;
 typeof(#{o := {_, _, _}}) -> datetime;
-typeof(#{type := Type}) -> Type;
-typeof(#{o := X}) when is_binary(X) -> binary.
+typeof(#{type := geohash}) -> geohash;
+typeof(#{type := Lang}) when is_binary(Lang) -> Lang;
+typeof(#{o := X}) when is_binary(X) -> binary;
+
+typeof(binary)   -> {uri, <<"xsd:string">>};
+typeof(integer)  -> {uri, <<"xsd:integer">>};
+typeof(float)    -> {uri, <<"xsd:double">>};
+typeof(boolean)  -> {uri, <<"xsd:boolean">>};
+typeof(datetime) -> {uri, <<"xsd:dateTime">>};
+typeof(geohash)  -> {uri, <<"georss:point">>}.
 
 
 %%
@@ -110,10 +118,10 @@ decode({<<"http://www.w3.org/2001/XMLSchema#gYear">>, O}, Fact) ->
 
 %%
 decode({<<_:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => {lang, Lang}};
+   Fact#{o => O, type => Lang};
 
 decode({<<_:16, $-, _:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => {lang, Lang}};
+   Fact#{o => O, type => Lang};
 
 %%
 decode(LatLng, #{p := {uri, <<"georss:point">>}} = Fact) ->
