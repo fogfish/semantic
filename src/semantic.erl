@@ -27,7 +27,8 @@
    typed/1,
    typed/2,
    typeof/1,
-   nt/1
+   nt/1,
+   jsonld/1
 ]).
 
 -export_type([spo/0]).
@@ -132,14 +133,21 @@ typeof(Fact) ->
 %%%------------------------------------------------------------------
 
 %%
-%% build stream of abstract knowledge statements from n-triples.
+%% build stream of knowledge statements from n-triples.
 -spec nt(datum:stream() | list()) -> datum:stream().
 
-nt({s, _, _} = Stream) -> 
-   semantic_nt:stream(Stream);
+nt({s, _, _} = Stream) ->
+   stream:map(fun semantic:typed/1, semantic_nt:stream(Stream));
 
 nt(File) ->
    case filename:extension(File) of
       ".nt" -> nt(stdio:file(File));
       ".gz" -> nt(gz:stream(stdio:file(File)))
    end.
+
+%%
+%% build list of knowledge statements from json-ld
+-spec jsonld(#{}) -> [spo()].
+
+jsonld(JsonLD) ->
+   lists:map(fun semantic:typed/1, semantic_jsonld:decode(JsonLD)).
