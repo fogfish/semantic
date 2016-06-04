@@ -6,10 +6,10 @@ Semantic Web ToolKit for Erlang applications
 
 ## Inspiration
 
-Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application and defines an data model (abstract syntax) to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement / triples. The library solve a following aspects:
+Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application and defines an data model (abstract syntax) to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement / triples. You can use it to build inter-operable Web services or store Linked Data in storage engines. The library solve a following aspects:
 * define Erlang native format for knowledge statement; its serialization to various external formats
 * provide common rules for data type mapping between Semantic Web and Erlang application
-* resolve complexity of IRI identity through prefixes and urn-base schema
+* resolve complexity of IRI identity through compact prefixes and urn-base schema
 
 
 
@@ -35,24 +35,58 @@ Build library and run the development console
 make
 make run
 ```
- 
+
+Let's take a short tour to the library
+```erlang
+%% configure built-in prefixes for compact IRI/URI 
+semantic:prefixes().
+
+%% intake knowledge fact from N-triple data source
+A = stream:head(semantic:nt(<<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>)).
+
+%% check the type of statement
+semantic:typeof(A).
+
+%% intake knowledge fact from JSON-LD data source
+JsonLD = #{
+   <<"@context">> => #{<<"price">> => <<"http://schema.org/price">>},
+   <<"@id">> => <<"http://example.org/a">>,
+   <<"price">> => 20
+}.
+B = hd(semantic:jsonld(JsonLD))
+
+%% check the type of statement
+semantic:typeof(B).
+``` 
+
+
 ## Supported features
+
 
 ### Native format
 
-The library expresses knowledge fact(s) using map as container type. (todo: evaluate abstract knowledge statement produces by reading RDF sources).
+The library expresses knowledge fact(s) using map as 'type-safe' container type (the statement type is expressed using Erlang native [data types](doc/datatype.md) mapping). This statement is compiled using `semantic:typed/1` function, that takes an abstract triple format and produces a native one. 
 
 ```erlang
 -type spo()  :: #{s => s(), p => p(), o => o(), type => lang() | type()}.
 ```
 
-### Name-space prefixes
 
-tbd
+### Compact identifiers
 
-### N-triples
+Compact identifiers is an approach to reduce IRI / URI overhead using `<prefix> : <suffix>` notation. The library implements compaction automatically using [built-in dictionary of prefixes](priv/prefixes.nt). For example the library applies following reduction to uri:
 
-tbd
+```
+http://xmlns.com/foaf/0.1/name  ->  foaf:name
+```
+
+
+### Knowledge intake
+
+The library supports multiple external serialization formats for knowledge intake:
+* N-triples
+* JSON-LD
+
 
 ### More Information
 
@@ -60,6 +94,7 @@ tbd
 * [JSON-LD 1.0 -- A JSON-based Serialization for Linked Data](http://www.w3.org/TR/json-ld/)
 * study [native interface](src/semantic.erl)
 * supported [data type](doc/datatype.md)
+* look into [how-to examples](doc/howto.md)
 
 
 ## How to Contribute

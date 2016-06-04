@@ -139,11 +139,16 @@ typeof(Fact) ->
 nt({s, _, _} = Stream) ->
    stream:map(fun semantic:typed/1, semantic_nt:stream(Stream));
 
-nt(File) ->
+nt(File)
+ when is_list(File) ->
    case filename:extension(File) of
       ".nt" -> nt(stdio:file(File));
       ".gz" -> nt(gz:stream(stdio:file(File)))
-   end.
+   end;
+
+nt(Blob)
+ when is_binary(Blob) ->
+   nt(stream:new(Blob)).
 
 %%
 %% build list of knowledge statements from json-ld
