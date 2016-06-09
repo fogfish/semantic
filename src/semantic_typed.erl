@@ -24,13 +24,14 @@
 
 %%
 %%
+typeof(#{type := geohash}) -> geohash;
+typeof(#{type := Type})  -> Type;
+
 typeof(#{o := {uri, _}}) -> uri;
 typeof(#{o := X}) when is_integer(X) -> integer;
 typeof(#{o := X}) when is_float(X)   -> float;
 typeof(#{o := X}) when is_boolean(X) -> boolean;
 typeof(#{o := {_, _, _}}) -> datetime;
-typeof(#{type := geohash}) -> geohash;
-typeof(#{type := Lang}) when is_binary(Lang) -> Lang;
 typeof(#{o := X}) when is_binary(X) -> binary;
 
 typeof(binary)   -> {uri, <<"xsd:string">>};
