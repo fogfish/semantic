@@ -101,6 +101,12 @@ decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"1">>}, Fact) ->
 decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"0">>}, Fact) ->
    Fact#{o => false};
 
+decode(<<"true">>, Fact) ->
+   Fact#{o => true};
+
+decode(<<"false">>, Fact) ->
+   Fact#{o => true};
+
 %%
 decode({<<"http://www.w3.org/2001/XMLSchema#dateTime">>, O}, Fact) ->
    Fact#{o => tempus:iso8601(O)};
@@ -127,21 +133,28 @@ decode({<<"http://www.w3.org/2001/XMLSchema#gDay">>, O}, Fact) ->
    Fact#{o => O};
 
 %%
-decode({<<_:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => Lang};
-
-decode({<<_:16, $-, _:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => Lang};
-
-%%
 decode(LatLng, #{p := {uri, <<"georss:point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
    Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash}; 
 
 decode(LatLng, #{p := {uri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash}.
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash};
 
+%%
+decode({<<_:16>> = Lang, O}, Fact) ->
+   Fact#{o => O, type => Lang};
+
+decode({<<_:16, $-, _:16>> = Lang, O}, Fact) ->
+   Fact#{o => O, type => Lang};
+
+decode({Lang, O}, Fact)
+ when is_binary(Lang) ->
+   Fact#{o => O, type => Lang};
+
+decode(O, Fact)
+ when is_binary(O) ->
+   Fact#{o => scalar:decode(O)}.
 
 %%
 %%
