@@ -117,6 +117,15 @@ decode({<<"http://www.w3.org/2001/XMLSchema#gYearMonth">>, O}, Fact) ->
 decode({<<"http://www.w3.org/2001/XMLSchema#gYear">>, O}, Fact) ->
    Fact#{o => tempus:iso8601(O)};
 
+decode({<<"http://www.w3.org/2001/XMLSchema#gMonthDay">>, O}, Fact) ->
+   Fact#{o => O};
+
+decode({<<"http://www.w3.org/2001/XMLSchema#gMonth">>, O}, Fact) ->
+   Fact#{o => O};
+
+decode({<<"http://www.w3.org/2001/XMLSchema#gDay">>, O}, Fact) ->
+   Fact#{o => O};
+
 %%
 decode({<<_:16>> = Lang, O}, Fact) ->
    Fact#{o => O, type => Lang};

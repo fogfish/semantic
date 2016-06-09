@@ -27,6 +27,7 @@
    typed/1,
    typed/2,
    typeof/1,
+   schema/1,
    nt/1,
    jsonld/1
 ]).
@@ -75,6 +76,8 @@ prefixes(Enc, Dec, Kns)
 
 %%
 %% encode uri prefix
+prefix({uri, Uri}) ->
+   Uri;
 prefix(Uri) ->
    semantic_ns_encode:q(undefined, Uri).
 
@@ -99,6 +102,7 @@ define(Predicate, Lang)
       #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => {uri, <<"rdf:langString">>}},
       #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => Lang}
    ].
+
 
 
 %%%------------------------------------------------------------------
@@ -133,6 +137,19 @@ typeof(Fact) ->
 %%%------------------------------------------------------------------
 
 %%
+%% build schema of knowledge statements
+-spec schema(datum:stream()) -> [spo()].
+
+schema({s, _, _} = Stream) ->
+   gb_sets:to_list(
+      stream:fold(fun schema/2, gb_sets:new(), Stream)
+   ).
+
+schema(#{p := P} = Fact, Set) ->
+   Type = semantic:typeof(Fact),
+   gb_sets:union(gb_sets:from_list(define(P, Type)), Set).
+
+%%
 %% build stream of knowledge statements from n-triples.
 -spec nt(datum:stream() | list()) -> datum:stream().
 
@@ -142,8 +159,8 @@ nt({s, _, _} = Stream) ->
 nt(File)
  when is_list(File) ->
    case filename:extension(File) of
-      ".nt" -> nt(stdio:file(File));
-      ".gz" -> nt(gz:stream(stdio:file(File)))
+      ".nt" -> nt(stdio:file(File, [{iobuf, 128 * 1024}]));
+      ".gz" -> nt(gz:stream(stdio:file(File, [{iobuf, 128 * 1024}])))
    end;
 
 nt(Blob)
