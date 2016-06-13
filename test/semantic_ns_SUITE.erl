@@ -87,7 +87,7 @@ decoder(_Config) ->
    A  = [{{uri, <<"xsd">>}, {uri, <<"rdfs:domain">>}, {uri, <<"http://www.w3.org/2001/XMLSchema#">>}}],
    {module, test_decoder} = semantic_ns:decoder(test_decoder, A),
    <<"http://www.w3.org/2001/XMLSchema#int">> = test_decoder:q(undefined, <<"xsd:int">>),
-   <<"http://www.w3.org/2001/XMLSchema#">> = test_decoder:q(undefined, <<"xsd">>),
+   <<"http://www.w3.org/2001/XMLSchema#">> = test_decoder:q(undefined, <<"xsd:">>),
    <<"foaf:name">> = test_decoder:q(undefined, <<"foaf:name">>).
 
 

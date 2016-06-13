@@ -60,7 +60,7 @@ prefixes() ->
 
 prefixes(File) ->
    prefixes(semantic_ns_encode, semantic_ns_decode, 
-      semantic_nt:stream(
+      semantic_nt:decode(
          stdio:file(File)
       )
    ).
@@ -113,8 +113,24 @@ define(Predicate, Lang)
    
 %%
 %% map abstract knowledge statement to Erlang native representation 
--spec typed(_) -> spo().
+-spec typed(datum:stream() | _) -> spo().
 -spec typed(atom(), _) -> spo().
+
+typed({s, _, _} = Stream) ->
+   stream:map(
+      fun(X) -> 
+         semantic_typed:c(semantic_ns_encode, X) 
+      end, 
+      Stream
+   );
+
+typed([_|_] = List) ->
+   lists:map(
+      fun(X) ->
+         semantic_typed:c(semantic_ns_encode, X) 
+      end,
+      List
+   );
 
 typed(Fact) ->
    semantic_typed:c(semantic_ns_encode, Fact).
@@ -154,7 +170,7 @@ schema(#{p := P} = Fact, Set) ->
 -spec nt(datum:stream() | list()) -> datum:stream().
 
 nt({s, _, _} = Stream) ->
-   stream:map(fun semantic:typed/1, semantic_nt:stream(Stream));
+   semantic_nt:decode(Stream);
 
 nt(File)
  when is_list(File) ->
@@ -172,4 +188,5 @@ nt(Blob)
 -spec jsonld(#{}) -> [spo()].
 
 jsonld(JsonLD) ->
-   lists:map(fun semantic:typed/1, semantic_jsonld:decode(JsonLD)).
+   semantic_jsonld:decode(JsonLD).
+

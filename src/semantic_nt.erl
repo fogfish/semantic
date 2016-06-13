@@ -44,8 +44,10 @@
 
 -export([
    new/0
-  ,decode/2   
-  ,stream/1
+  ,decode/1
+  ,decode/2
+  ,encode/1
+  ,encode/2
 ]).
 
 %%
@@ -75,25 +77,49 @@ new() ->
 
 %%
 %% stream decoder
--spec(stream/1 :: (stdio:stream()) -> stdio:stream()).
+-spec(decode/1 :: (datum:stream()) -> datum:stream()).
 
-stream(Stream) ->
-   stream(Stream, new()).
+decode({s, _, _} = Stream) ->
+   istream(Stream, new()).
 
-stream({},    _State) ->
-   stdio:new();
-stream(Stream, State) ->
-   stream(stdio:head(Stream), Stream, State).
+istream({},    _State) ->
+   stream:new();
+istream(Stream, State) ->
+   istream(stream:head(Stream), Stream, State).
 
-stream(Head, Stream, State0)
+istream(Head, Stream, State0)
  when is_binary(Head) ->
    {NT, State} = decode(Head, State0),
-   stream(NT, Stream, State);
+   istream(NT, Stream, State);
 
-stream([], Stream, State) ->
-   stream(stdio:tail(Stream), State);
-stream([Head|Tail], Stream, State) ->
-   stdio:new(Head, fun() -> stream(Tail, Stream, State) end).
+istream([], Stream, State) ->
+   istream(stream:tail(Stream), State);
+istream([Head|Tail], Stream, State) ->
+   stream:new(Head, fun() -> istream(Tail, Stream, State) end).
+
+%%
+%% stream encoder
+-spec(encode/1 :: (datum:stream()) -> datum:stream()).
+
+encode({s, _, _} = Stream) ->
+   ostream(Stream, new()).
+
+ostream({},    _State) ->
+   stream:new();
+ostream(Stream, State) ->
+   ostream(stream:head(Stream), Stream, State).
+
+ostream(Head, Stream, State0)
+ when is_tuple(Head) ->
+   {NT, State} = encode(Head, State0),
+   ostream(NT, Stream, State);
+
+ostream([], Stream, State) ->
+   ostream(stream:tail(Stream), State);
+ostream([Head|Tail], Stream, State) ->
+   stream:new(Head, fun() -> ostream(Tail, Stream, State) end).
+
+
 
 %%%------------------------------------------------------------------
 %%%
@@ -115,7 +141,7 @@ decode(Chunk, State)
    decode(iolist_to_binary([State#nt.recbuf, Chunk]), [], State#nt{recbuf = <<>>}).
 
 decode(Chunk, Acc, State) ->
-   case decode_triple(Chunk) of
+   case decode_t(Chunk) of
       %% unable to parse
       undefined   ->
          {lists:reverse(Acc), State#nt{recbuf = Chunk}};
@@ -126,16 +152,16 @@ decode(Chunk, Acc, State) ->
 
 %%
 %%
-decode_triple(<<$#, X0/binary>>) ->
+decode_t(<<$#, X0/binary>>) ->
    % skip comment line
    case binary:split(X0, <<$\n>>) of
       [_, X1] ->
-         decode_triple(X1);
+         decode_t(X1);
       _       ->
          undefined
    end;
 
-decode_triple(X0) ->
+decode_t(X0) ->
    try
       {S, X1} = decode_s(X0),
       {P, X2} = decode_p(X1),
@@ -222,6 +248,38 @@ decode_o(<<$", _/binary>>=X) ->
 decode_o(_) ->
    throw(badarg).
 
+
+%%%------------------------------------------------------------------
+%%%
+%%% encoder
+%%%
+%%%------------------------------------------------------------------
+
+encode(Stmt, State)
+ when is_list(Stmt) ->
+   {encode_t(Stmt), State};
+
+encode(Stmt, State) ->
+   {encode_t([Stmt]), State}.
+
+encode_t([{{uri, S}, {uri, P}, {uri, O}} | Tail]) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $<, O/binary, $>, $ , $., $\n>>,
+   [X | encode_t(Tail)];
+
+encode_t([{{uri, S}, {uri, P}, {<<_:16>> = Lang, O}} | Tail]) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
+   [X | encode_t(Tail)];
+
+encode_t([{{uri, S}, {uri, P}, {<<_:16, $-, _:16>> = Lang, O}} | Tail]) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
+   [X | encode_t(Tail)];
+
+encode_t([{{uri, S}, {uri, P}, {Type, O}} | Tail]) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $^, $^, Type/binary, $ , $., $\n>>,
+   [X | encode_t(Tail)];
+
+encode_t([]) ->
+   [].  
 
 %%%------------------------------------------------------------------
 %%%

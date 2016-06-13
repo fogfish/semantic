@@ -51,14 +51,16 @@ decoder(Id, Kns)
  when is_atom(Id), is_list(Kns) ->
    hornlog:c(Id, [decoder(X) || X <- extend(Kns)]).
 
+decoder({{uri, <<>>}, {uri,<<"rdfs:domain">>}, {uri, Uri}}) ->
+   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<>>);
 decoder({{uri, Ns}, {uri,<<"rdfs:domain">>}, {uri, Uri}}) ->
-   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), Ns).
+   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<Ns/binary, $:>>).
 
 decode(<<>>, _X, Suffix) ->
    Suffix;
 decode(Uri, _X, <<>>) ->
    Uri;
-decode(Uri, _X, <<$:, Suffix/binary>>) ->
+decode(Uri, _X, Suffix) ->
    <<Uri/binary, Suffix/binary>>.
 
 

@@ -178,4 +178,4 @@ spo_stream(_) ->
       {{uri, <<"d">>}, {uri, <<"e">>}, {uri, <<"f">>}},
       {{uri, <<"q">>}, {uri, <<"a">>}, {uri, <<"z">>}}
 
-   ] = stdio:list( semantic_nt:stream( stdio:new(A) ) ).  
+   ] = stdio:list( semantic_nt:decode( stdio:new(A) ) ).  
