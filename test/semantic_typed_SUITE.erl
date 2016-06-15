@@ -90,7 +90,7 @@ spo_with_uri(_Config) ->
       p := {uri, <<"foaf:name">>},
       o := {uri, <<"http://example.org/c">>}
    } = semantic:typed( decode(A) ),
-   uri = semantic:typeof(T).
+   rel = semantic:typeof(T).
 
 
 spo_with_string(_Config) ->
