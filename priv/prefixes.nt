@@ -135,7 +135,7 @@ _:gml	_:rdfs:domain	<http://www.opengis.net/gml> .
 _:go	_:rdfs:domain	<http://purl.org/obo/owl/GO#> .
 _:hlisting	_:rdfs:domain	<http://www.openlinksw.com/schemas/hlisting/> .
 _:hoovers	_:rdfs:domain	<http://wwww.hoovers.com/> .
-_:hrev	_:rdfs:domain	<http:/www.purl.org/stuff/hrev#> .
+_:hrev	_:rdfs:domain	<http://www.purl.org/stuff/hrev#> .
 _:ical	_:rdfs:domain	<http://www.w3.org/2002/12/cal/ical#> .
 _:ir	_:rdfs:domain	<http://web-semantics.org/ns/image-regions> .
 _:itunes	_:rdfs:domain	<http://www.itunes.com/DTDs/Podcast-1.0.dtd> .
