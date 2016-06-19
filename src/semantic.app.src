@@ -1,7 +1,7 @@
 {application, semantic,
    [
       {description, "semantic web toolkit"},
-      {vsn,         "0.2.2"},
+      {vsn,         "0.2.3"},
       {modules,     []},
       {registered,  []},
       {applications,[

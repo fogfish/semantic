@@ -133,6 +133,9 @@ decode({<<"http://www.w3.org/2001/XMLSchema#gDay">>, O}, Fact) ->
    Fact#{o => O};
 
 %%
+decode({<<"http://www.georss.org/georss/hash">>, O}, Fact) ->
+   Fact#{o => O, type => geohash};
+
 decode(LatLng, #{p := {uri, <<"georss:point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
    Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash}; 

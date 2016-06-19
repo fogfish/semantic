@@ -96,7 +96,8 @@ The geographical coordinates are hashed using GeoHash, ensuring 3.7cm x 1.8cm pr
 Lang | Data type
 ---  | ---
 Erlang | `-type binary().`
-RDF | xmlns:xsd="http://www.georss.org/georss/"
+RDF | xmlns:xsd="http://www.georss.org/georss/point"
+    | xmlns:xsd="http://www.georss.org/georss/hash"
 
 
 ### not supported 
