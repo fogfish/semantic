@@ -10,15 +10,24 @@ decode(#{<<"@context">> := Context, <<"@id">> := Node} = JsonLD) ->
    decode(Context, Node, maps:without([<<"@context">>, <<"@id">>], JsonLD)).
 
 decode(Context, Node, JsonLD) ->
-   maps:fold(
-      fun(Key, Val, Acc) ->
-         Uri  = context(Key, Context),
-         Type = typeof(Key, Val, Context),
-         [spo(Node, Uri, Type, Val) | Acc]
-      end,
-      [],
-      JsonLD
+   lists:flatten(
+      maps:fold(
+         fun(Key, Val, Acc) ->
+            Uri  = context(Key, Context),
+            Type = typeof(Key, Val, Context),
+            [spo(Node, Uri, Type, Val) | Acc]
+         end,
+         [],
+         JsonLD
+      )
    ).
+
+spo(S, P, Type, O)
+ when is_list(Type), is_list(O) ->
+   lists:map(
+      fun({Tx, Ox}) -> spo(S, P, Tx, Ox) end,
+      lists:zip(Type, O) 
+   );
 
 spo(S, P, uri, O) ->
    {{uri, S}, {uri, P}, {uri, O}};
@@ -52,6 +61,13 @@ context(Key, Context) ->
       _ ->
          Key
    end.
+
+typeof(Key, Val, Context)
+ when is_list(Val) ->
+   lists:map(
+      fun(X) -> typeof(Key, X, Context) end,
+      Val
+   );
 
 typeof(Key, Val, Context) ->
    case Context of
