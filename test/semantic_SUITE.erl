@@ -79,7 +79,7 @@ end_per_group(_, _Config) ->
 define_uri(_Config) ->
    [
       #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:type">>}, o := {uri, <<"rdf:Property">>}}
-   ] = semantic:define(<<"http://xmlns.com/foaf/0.1/name">>, uri).
+   ] = semantic:define(<<"http://xmlns.com/foaf/0.1/name">>, rel).
 
 define_string(_Config) ->
    [

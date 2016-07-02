@@ -85,7 +85,7 @@ prefix(Uri) ->
 %% define predicate meta-data
 -spec define(binary(), type() | lang()) -> [spo()].
 
-define(Predicate, uri) ->
+define(Predicate, rel) ->
    [
       #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}}
    ];
