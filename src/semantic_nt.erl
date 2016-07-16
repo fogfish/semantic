@@ -70,14 +70,14 @@
 
 %%
 %% create new triple parser
--spec(new/0 :: () -> #nt{}).
+-spec new() -> #nt{}.
 
 new() ->
    #nt{}.
 
 %%
 %% stream decoder
--spec(decode/1 :: (datum:stream()) -> datum:stream()).
+-spec decode(datum:stream()) -> datum:stream().
 
 decode({s, _, _} = Stream) ->
    istream(Stream, new()).
@@ -99,7 +99,7 @@ istream([Head|Tail], Stream, State) ->
 
 %%
 %% stream encoder
--spec(encode/1 :: (datum:stream()) -> datum:stream()).
+-spec encode(datum:stream()) -> datum:stream().
 
 encode({s, _, _} = Stream) ->
    ostream(Stream, new()).
@@ -130,7 +130,7 @@ ostream([Head|Tail], Stream, State) ->
 %%
 %% decode stream of triples,
 %% returns parsed values and new parser state.
--spec(decode/2 :: (binary(), #nt{}) -> {[spo()], #nt{}}).
+-spec decode(binary(), #nt{}) -> {[spo()], #nt{}}.
 
 decode(Chunk, #nt{recbuf = <<>>}=State)
  when is_binary(Chunk) ->
