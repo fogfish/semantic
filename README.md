@@ -38,14 +38,17 @@ make run
 
 Let's take a short tour to the library
 ```erlang
-%% configure built-in prefixes for compact IRI/URI 
-semantic:prefixes().
+%% start library and configure built-in prefixes for compact IRI/URI 
+semantic:start().
 
 %% intake knowledge fact from N-triple data source
 A = stream:head(semantic:nt(<<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>)).
 
+%% compile generic triple to native type-safe representation
+B = semantic:typed(A).
+
 %% check the type of statement
-semantic:typeof(A).
+semantic:typeof(B).
 
 %% intake knowledge fact from JSON-LD data source
 JsonLD = #{
@@ -53,10 +56,11 @@ JsonLD = #{
    <<"@id">> => <<"http://example.org/a">>,
    <<"price">> => 20
 }.
-B = hd(semantic:jsonld(JsonLD))
+C = hd(semantic:jsonld(JsonLD)).
+D = semantic:typed(C). 
 
 %% check the type of statement
-semantic:typeof(B).
+semantic:typeof(D).
 ``` 
 
 

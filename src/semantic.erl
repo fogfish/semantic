@@ -17,9 +17,8 @@
 %%   semantic web toolkit
 -module(semantic).
 
+-export([start/0]).
 -export([
-   prefixes/0,
-   prefixes/1,
    prefix/1,
    define/2
 ]).
@@ -45,6 +44,11 @@
 -type lang() :: binary().
 -type type() :: integer | float | boolean | datetime | binary | geohash | uri.
 
+%%
+%%
+start() ->
+   applib:boot(?MODULE, []).
+
 %%%------------------------------------------------------------------
 %%%
 %%% schema interface
@@ -52,30 +56,9 @@
 %%%------------------------------------------------------------------
 
 %%
-%% configure built-in namespace prefixes 
--spec prefixes() -> ok.
-
-prefixes() ->
-   prefixes( filename:join([code:priv_dir(?MODULE), "prefixes.nt"]) ).
-
-prefixes(File) ->
-   prefixes(semantic_ns_encode, semantic_ns_decode, 
-      semantic_nt:decode(
-         stdio:file(File)
-      )
-   ).
-
-prefixes(Enc, Dec, {s, _, _} = Kns) ->
-   prefixes(Enc, Dec, stream:list(Kns));
-
-prefixes(Enc, Dec, Kns)
- when is_list(Kns) ->
-   {module, Enc} = semantic_ns:encoder(Enc, Kns),
-   {module, Dec} = semantic_ns:decoder(Dec, Kns),
-   ok.
-
-%%
 %% encode uri prefix
+-spec prefix(binary() | uri()) -> uri().
+
 prefix({uri, Uri}) ->
    Uri;
 prefix(Uri) ->
