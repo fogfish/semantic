@@ -19,35 +19,157 @@
 
 -export([start/0]).
 -export([
+   compact/1,
+   absolute/1,
+   typed/1
+]).
+
+
+
+-export([
    prefix/1,
    define/2
 ]).
 -export([
-   typed/1,
-   typed/2,
+   % typed/2,
    typeof/1,
    schema/1,
    nt/1,
    jsonld/1
 ]).
 
--export_type([spo/0]).
+-export_type([spock/0, spo/0, iri/0]).
+
+%%%------------------------------------------------------------------
+%%%
+%%% data types
+%%%
+%%%------------------------------------------------------------------
+
+%% type-safe knowledge statement
+%%   s: subject
+%%   p: predicate
+%%   o: object
+%%   c: credibility
+%%   k: k-order
+-type spock()    :: #{s => s(), p => p(), o => o(), c => float(), k => uid:l(), type => iri()}.
+-type s()        :: iri().
+-type p()        :: iri().
+-type o()        :: iri() | lit().
+
+%% abstract syntax knowledge statement
+-type spo()      :: {iri(), iri(), iri() | {iri(), binary()}}.
+
+
+%% Internationalized Resource Identifiers [RFC3987]
+-type iri()      :: absolute() | compact().
+-type absolute() :: {iri, uri()}.
+-type compact()  :: {iri, prefix(), suffix()}.
+-type uri()      :: binary().
+-type prefix()   :: binary().
+-type suffix()   :: binary().
+
+%% literal data types
+-type lit()      :: canonical() | semantic().
+
+%% canonical data types (Erlang built-in)
+-type canonical():: atom() 
+                  | binary() 
+                  | float() 
+                  | integer()
+                  | boolean()
+                  | byte()
+                  | char().
+
+%% semantic data types extension
+-type semantic() :: geohash()
+                  | datetime().
+
+-type geohash()  :: binary().
+-type datetime() :: {integer(), integer(), integer()}.
+
+-type heap(X)    :: X | [X] | _. 
+
+%%%------------------------------------------------------------------
+%%%
+%%% semantic public interface
+%%%
+%%%------------------------------------------------------------------
 
 %%
-%% data types
--type spo()  :: #{s => s(), p => p(), o => o(), type => lang() | type()}.
--type s()    :: uri().
--type p()    :: uri().
--type o()    :: uri() | lit().
--type uri()  :: {uri, binary()}.
--type lit()  :: binary() | integer() | float() | boolean() | {_, _, _}.
--type lang() :: binary().
--type type() :: integer | float | boolean | datetime | binary | geohash | uri.
-
-%%
-%%
+%% start library RnD mode
 start() ->
    applib:boot(?MODULE, []).
+
+
+%%
+%% encodes IRI to compact format
+-spec compact(iri()) -> iri().
+
+compact({iri, _, _} = IRI) ->
+   IRI;
+compact({iri,  Uri} = IRI) ->
+   case semantic_ns_encode:q(undefined, Uri) of
+      Uri ->
+         IRI;
+      {Prefix, Suffix} ->
+         {iri, Prefix, Suffix}
+   end.
+
+
+%%
+%% decodes IRI to absolute format
+-spec absolute(iri()) -> iri().
+
+absolute({iri, _} = IRI) ->
+   IRI;
+absolute({iri, Prefix, Suffix} = IRI) ->
+   case semantic_ns_decode:q(undefined, Prefix) of
+      Prefix   ->
+         IRI;
+      Absolute ->
+         {iri, <<Absolute/binary, Suffix/binary>>}
+   end.
+
+
+%%
+%% compiles knowledge statement into type-safe format
+-spec typed( heap(spo()) ) -> heap(spock()).     
+
+typed(Fact) ->
+   semantic_typed:c(Fact).
+
+
+%%
+%% map abstract knowledge statement to Erlang native representation 
+% -spec typed(datum:stream() | _) -> spock().
+% -spec typed(atom(), _) -> spock().
+
+% typed({s, _, _} = Stream) ->
+%    stream:map(
+%       fun(X) -> 
+%          semantic_typed:c(semantic_ns_encode, X) 
+%       end, 
+%       Stream
+%    );
+
+% typed([_|_] = List) ->
+%    lists:map(
+%       fun(X) ->
+%          semantic_typed:c(semantic_ns_encode, X) 
+%       end,
+%       List
+%    );
+
+% typed(Fact) ->
+%    semantic_typed:c(semantic_ns_encode, Fact).
+
+% typed(Prefix, Fact) ->
+%    semantic_typed:c(Prefix, Fact).
+
+
+
+
 
 %%%------------------------------------------------------------------
 %%%
@@ -66,7 +188,7 @@ prefix(Uri) ->
 
 %%
 %% define predicate meta-data
--spec define(binary(), type() | lang()) -> [spo()].
+% -spec define(binary(), type() | lang()) -> [spo()].
 
 define(Predicate, rel) ->
    [
@@ -94,37 +216,11 @@ define(Predicate, Lang)
 %%%
 %%%------------------------------------------------------------------
    
-%%
-%% map abstract knowledge statement to Erlang native representation 
--spec typed(datum:stream() | _) -> spo().
--spec typed(atom(), _) -> spo().
-
-typed({s, _, _} = Stream) ->
-   stream:map(
-      fun(X) -> 
-         semantic_typed:c(semantic_ns_encode, X) 
-      end, 
-      Stream
-   );
-
-typed([_|_] = List) ->
-   lists:map(
-      fun(X) ->
-         semantic_typed:c(semantic_ns_encode, X) 
-      end,
-      List
-   );
-
-typed(Fact) ->
-   semantic_typed:c(semantic_ns_encode, Fact).
-
-typed(Prefix, Fact) ->
-   semantic_typed:c(Prefix, Fact).
 
 
 %%
 %% return type of knowledge statement
--spec typeof(spo()) -> lang() | type().
+% -spec typeof(spo()) -> lang() | type().
 
 typeof(Fact) ->
    semantic_typed:typeof(Fact).
@@ -137,7 +233,7 @@ typeof(Fact) ->
 
 %%
 %% build schema of knowledge statements
--spec schema(datum:stream()) -> [spo()].
+-spec schema(datum:stream()) -> [spock()].
 
 schema({s, _, _} = Stream) ->
    gb_sets:to_list(
@@ -168,7 +264,7 @@ nt(Blob)
 
 %%
 %% build list of knowledge statements from json-ld
--spec jsonld(#{}) -> [spo()].
+-spec jsonld(#{}) -> [spock()].
 
 jsonld(JsonLD) ->
    semantic_jsonld:decode(JsonLD).

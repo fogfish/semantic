@@ -41,6 +41,7 @@
 %%
 %%
 -module(semantic_nt).
+-include("semantic.hrl").
 
 -export([
    new/0
@@ -49,13 +50,6 @@
   ,encode/1
   ,encode/2
 ]).
-
-%%
-%% data types
--type spo()  :: {lit(), lit(), lit()}.
--type lit()  :: {type(), value()}.
--type type() :: uri | binary().
--type value():: binary().
 
 %%
 %% parser state
@@ -130,7 +124,7 @@ ostream([Head|Tail], Stream, State) ->
 %%
 %% decode stream of triples,
 %% returns parsed values and new parser state.
--spec decode(binary(), #nt{}) -> {[spo()], #nt{}}.
+-spec decode(binary(), #nt{}) -> {[semantic:spo()], #nt{}}.
 
 decode(Chunk, #nt{recbuf = <<>>}=State)
  when is_binary(Chunk) ->
@@ -182,7 +176,7 @@ decode_s(X) ->
    case split(X, ?WS) of
       %% blanked node
       {<<$_, $:, Y/binary>>, Tail} ->
-         {{uri, Y}, Tail};
+         {{iri, Y}, Tail};
 
       %% not enough data to parse statement
       {<<>>, _Tail} ->
@@ -191,7 +185,7 @@ decode_s(X) ->
       %% Node identity is uri
       {Head, Tail} ->
          {Uri,    _} = unquote(Head, <<$<>>, <<$>>>),
-         {{uri, Uri}, Tail}
+         {{iri, Uri}, Tail}
    end.
 
 %%
@@ -208,12 +202,12 @@ decode_p(<<$", _/binary>> = X) ->
 decode_p(X) ->
    case split(X, ?WS) of
       {<<$_, $:, Y/binary>>, Tail} ->
-         {{uri, Y}, Tail};
+         {{iri, Y}, Tail};
       {<<>>,_Tail} ->
          throw(badarg);
       {Head, Tail} -> 
          {Uri,     _} = unquote(Head, <<$<>>, <<$>>>),
-         {{uri, Uri},  Tail}
+         {{iri, Uri},  Tail}
    end.
 
 %%
@@ -222,24 +216,24 @@ decode_o(<<$_, $:, Y/binary>>) ->
    {Head, Tail} = split(Y, ?WS),
    case split(Head, [<<$@>>]) of 
       {_,  <<>>} ->
-         {{uri, Head}, Tail};
+         {{iri, Head}, Tail};
       {Urn, Tag} ->
          {{Tag,  Urn}, Tail}
    end;
 
 decode_o(<<$<, _/binary>>=X) ->
    {Uri, Tail} = unquote(X, <<$<>>, <<$>>>),
-   {{uri, Uri}, Tail};
+   {{iri, Uri}, Tail};
 
 decode_o(<<$", _/binary>>=X) ->
    case unquote(X, <<$">>, <<$">>) of
       {Head, <<$@, Rest/binary>>} ->
          {Lang, Tail} = skip(Rest, ?EOL),
-         {{Lang, Head}, Tail};
+         {{{iri, ?LANG, Lang}, Head}, Tail};
 
       {Head, <<$^, $^, Rest/binary>>} ->
          {Type, Tail} = unquote(Rest, <<$<>>, <<$>>>),
-         {{Type, Head},  Tail};
+         {{{iri, Type}, Head},  Tail};
 
       {_Head, _Tail} = Result ->
          Result
@@ -262,19 +256,19 @@ encode(Stmt, State)
 encode(Stmt, State) ->
    {encode_t([Stmt]), State}.
 
-encode_t([{{uri, S}, {uri, P}, {uri, O}} | Tail]) ->
+encode_t([{{iri, S}, {iri, P}, {iri, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $<, O/binary, $>, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{uri, S}, {uri, P}, {<<_:16>> = Lang, O}} | Tail]) ->
+encode_t([{{iri, S}, {iri, P}, {<<_:16>> = Lang, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{uri, S}, {uri, P}, {<<_:16, $-, _:16>> = Lang, O}} | Tail]) ->
+encode_t([{{iri, S}, {iri, P}, {<<_:16, $-, _:16>> = Lang, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{uri, S}, {uri, P}, {Type, O}} | Tail]) ->
+encode_t([{{iri, S}, {iri, P}, {Type, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $^, $^, Type/binary, $ , $., $\n>>,
    [X | encode_t(Tail)];
 

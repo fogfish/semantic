@@ -16,11 +16,13 @@
 %% @doc
 %%   compile abstract syntax triple to type-safe representation
 -module(semantic_typed).
+-include("semantic.hrl").
 
 -export([
-   typeof/1,
-   c/2
+   % typeof/1,
+   c/1
 ]).
+
 
 %%
 %%
@@ -43,123 +45,151 @@ typeof(geohash)  -> {uri, <<"georss:point">>}.
 
 
 %%
-%%
-c(Prefix, {{uri, S}, {uri, P}, {uri, O}}) ->
+%% compile abstract syntax triple to type-safe
+c({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
    #{
-      s => {uri, prefix(Prefix, S)},
-      p => {uri, prefix(Prefix, P)},
-      o => {uri, prefix(Prefix, O)}
+      s => semantic:compact(S),
+      p => semantic:compact(P),
+      o => semantic:compact(O),
+      c => 1.0,
+      k => uid:l()
    };
 
-c(Prefix, {{uri, S}, {uri, P}, O}) ->
-   decode(O, #{
-      s => {uri, prefix(Prefix, S)},
-      p => {uri, prefix(Prefix, P)}
-   }).
+c({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
+   #{
+      s => semantic:compact(S),
+      p => semantic:compact(P),
+      o => O,
+      c => 1.0,
+      k => uid:l(),
+      type => Type
+   };
+
+c({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
+   decode(semantic:compact(Type), O,
+      #{
+         s => semantic:compact(S),
+         p => semantic:compact(P),
+         c => 1.0,
+         k => uid:l()
+      }
+   );
+
+c({{iri, _} = S, {iri, _} = P, O}) ->
+   decode(O,
+      #{
+         s => semantic:compact(S),
+         p => semantic:compact(P),
+         c => 1.0,
+         k => uid:l()
+      }
+   ).
+
 
 %%
-%%
-decode({<<"http://www.w3.org/2001/XMLSchema#string">>, O}, Fact) ->
-   Fact#{o => O};
+%% type-safe decode
+decode(?STRING = Type, O, Fact) ->
+   Fact#{o => O, type => Type};
 
 %%
-decode({<<"http://www.w3.org/2001/XMLSchema#integer">>, O}, Fact) ->
-   Fact#{o => scalar:i(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#long">>, O}, Fact) ->
-   Fact#{o => scalar:i(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#int">>, O}, Fact) ->
-   Fact#{o => scalar:i(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#short">>, O}, Fact) ->
-   Fact#{o => scalar:i(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#byte">>, O}, Fact) ->
-   Fact#{o => scalar:i(O)};
+decode(?INTEGER = Type, O, Fact) -> 
+   Fact#{o => scalar:i(O), type => Type};
 
 %%
-decode({<<"http://www.w3.org/2001/XMLSchema#decimal">>, O}, Fact) ->
-   Fact#{o => scalar:f(O)};
+decode(?BYTE = Type, O, Fact) ->
+   Fact#{o => scalar:i(O), type => Type};
 
-decode({<<"http://www.w3.org/2001/XMLSchema#float">>, O}, Fact) ->
-   Fact#{o => scalar:f(O)};
+decode(?SHORT = Type, O, Fact) ->
+   Fact#{o => scalar:i(O), type => Type};
 
-decode({<<"http://www.w3.org/2001/XMLSchema#double">>, O}, Fact) ->
-   Fact#{o => scalar:f(O)};
+decode(?INT = Type, O, Fact) ->
+   Fact#{o => scalar:i(O), type => Type};
+
+decode(?LONG = Type, O, Fact) ->
+   Fact#{o => scalar:i(O), type => Type};
+
 
 %%
-decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"true">>}, Fact) ->
-   Fact#{o => true};
+decode(?DECIMAL = Type, O, Fact) ->
+   Fact#{o => scalar:f(O), type => Type};
 
-decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"false">>}, Fact) ->
-   Fact#{o => false};
+decode(?FLOAT = Type, O, Fact) ->
+   Fact#{o => scalar:f(O), type => Type};
 
-decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"1">>}, Fact) ->
-   Fact#{o => true};
+decode(?DOUBLE = Type, O, Fact) ->
+   Fact#{o => scalar:f(O), type => Type};
 
-decode({<<"http://www.w3.org/2001/XMLSchema#boolean">>, <<"0">>}, Fact) ->
-   Fact#{o => false};
+%%
+decode(?BOOLEAN = Type, <<"true">>, Fact) ->
+   Fact#{o => true, type => Type};
 
+decode(?BOOLEAN = Type, <<"false">>, Fact) ->
+   Fact#{o => false, type => Type};
+
+decode(?BOOLEAN = Type, <<"1">>, Fact) ->
+   Fact#{o => true, type => Type};
+
+decode(?BOOLEAN = Type, <<"0">>, Fact) ->
+   Fact#{o => false, type => Type};
+
+%%
+decode(?DATETIME = Type, O, Fact) ->
+   Fact#{o => tempus:iso8601(O), type => Type};
+
+decode(?DATE = Type, O, Fact) ->
+   Fact#{o => tempus:iso8601(O), type => Type};
+
+decode(?TIME = Type, O, Fact) ->
+   Fact#{o => tempus:iso8601(O), type => Type};
+
+decode(?YEARMONTH = Type, O, Fact) ->
+   Fact#{o => tempus:iso8601(O), type => Type};
+
+decode(?YEAR = Type, O, Fact) ->
+   Fact#{o => tempus:iso8601(O), type => Type};
+
+decode(?MONTHDAY = Type, O, Fact) ->
+   Fact#{o => O, type => Type};
+
+decode(?MONTH = Type, O, Fact) ->
+   Fact#{o => O, type => Type};
+
+decode(?DAY = Type, O, Fact) ->
+   Fact#{o => O, type => Type};
+
+%%
+decode(?GEOHASH = Type, O, Fact) ->
+   Fact#{o => O, type => Type};
+
+decode(?GEOPOINT = Type, O, Fact) ->
+   [Lat, Lng] = binary:split(O, <<$ >>), 
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => Type}. 
+
+
+%%
+%% relax decode
 decode(<<"true">>, Fact) ->
-   Fact#{o => true};
+   Fact#{o => true,  type => ?BOOLEAN};
 
 decode(<<"false">>, Fact) ->
-   Fact#{o => true};
+   Fact#{o => false, type => ?BOOLEAN};
 
-%%
-decode({<<"http://www.w3.org/2001/XMLSchema#dateTime">>, O}, Fact) ->
-   Fact#{o => tempus:iso8601(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#date">>, O}, Fact) ->
-   Fact#{o => tempus:iso8601(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#time">>, O}, Fact) ->
-   Fact#{o => tempus:iso8601(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#gYearMonth">>, O}, Fact) ->
-   Fact#{o => tempus:iso8601(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#gYear">>, O}, Fact) ->
-   Fact#{o => tempus:iso8601(O)};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#gMonthDay">>, O}, Fact) ->
-   Fact#{o => O};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#gMonth">>, O}, Fact) ->
-   Fact#{o => O};
-
-decode({<<"http://www.w3.org/2001/XMLSchema#gDay">>, O}, Fact) ->
-   Fact#{o => O};
-
-%%
-decode({<<"http://www.georss.org/georss/hash">>, O}, Fact) ->
-   Fact#{o => O, type => geohash};
-
-decode(LatLng, #{p := {uri, <<"georss:point">>}} = Fact) ->
+decode(LatLng, #{p := {iri, <<"georss">>, <<"point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash}; 
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEOPOINT}; 
 
-decode(LatLng, #{p := {uri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
+decode(LatLng, #{p := {iri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => geohash};
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEOPOINT};
 
-%%
-decode({<<_:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => Lang};
-
-decode({<<_:16, $-, _:16>> = Lang, O}, Fact) ->
-   Fact#{o => O, type => Lang};
-
-decode({Lang, O}, Fact)
- when is_binary(Lang) ->
-   Fact#{o => O, type => Lang};
-
-decode(O, Fact)
- when is_binary(O) ->
-   Fact#{o => scalar:decode(O)}.
-
-%%
-%%
-prefix(Encoder, Uri) ->
-   Encoder:q(undefined, Uri).
+decode(O, Fact) ->
+   case scalar:decode(O) of
+      X when is_integer(X) ->
+         Fact#{o => X, type => ?INTEGER};
+      X when is_float(X) ->
+         Fact#{o => X, type => ?DOUBLE};
+      X when is_boolean(X) ->
+         Fact#{o => X, type => ?BOOLEAN};
+      X when is_binary(X) ->
+         Fact#{o => X, type => ?STRING}
+   end.
