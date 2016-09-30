@@ -25,6 +25,7 @@
    typed/1,
    typeof/1,
    schema/1,
+   define/1,
    define/2,
    nt/1,
    jsonld/1
@@ -134,13 +135,11 @@ typed(Facts) ->
 
 
 %%
-%% return type of knowledge statement
+%% return Erlang native type of knowledge statement
 -spec typeof(spock()) -> iri().
 
-typeof(#{type := Type}) ->
-   Type;
-typeof(_) ->
-   undefined.
+typeof(Fact) ->
+   semantic_typed:native(Fact).
 
 
 %%
@@ -149,6 +148,13 @@ typeof(_) ->
 
 schema(Facts) ->
    semantic_schema:deduct(Facts).
+
+%%
+%% define property schema
+-spec define(p()) -> [spock()].
+
+define(P) ->
+   semantic_schema:define(P).
 
 
 %%

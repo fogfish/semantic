@@ -20,8 +20,42 @@
 -include("semantic.hrl").
 
 -export([
+   native/1,
    c/1
 ]).
+
+%%
+%% Translate semantic type to Erlang native
+native(#{type := ?XSD_STRING}) -> binary;
+
+native(#{type := ?XSD_INTEGER}) -> integer;
+
+native(#{type := ?XSD_BYTE}) -> integer;
+native(#{type := ?XSD_SHORT}) -> integer;
+native(#{type := ?XSD_INT}) -> integer;
+native(#{type := ?XSD_LONG}) -> integer;
+
+
+native(#{type := ?XSD_DECIMAL}) -> float;
+native(#{type := ?XSD_FLOAT}) -> float;
+native(#{type := ?XSD_DOUBLE}) -> float;
+
+native(#{type := ?XSD_BOOLEAN}) -> boolean;
+
+native(#{type := ?XSD_DATETIME}) -> datetime;
+native(#{type := ?XSD_DATE}) -> datetime;
+native(#{type := ?XSD_TIME}) -> datetime;
+native(#{type := ?XSD_YEARMONTH}) -> datetime;
+native(#{type := ?XSD_YEAR}) -> integer;
+native(#{type := ?XSD_MONTHDAY}) -> binary;
+native(#{type := ?XSD_MONTH}) -> integer;
+native(#{type := ?XSD_DAY}) -> integer;
+
+native(#{type := ?GEORSS_POINT}) -> geohash;
+native(#{type := ?GEORSS_HASH}) -> geohash;
+
+native(#{type := {iri, <<"lang">>, Lang}}) -> Lang;
+native(_) -> rel.
 
 
 %%
@@ -136,16 +170,16 @@ decode(?XSD_YEARMONTH = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
 decode(?XSD_YEAR = Type, O, Fact) ->
-   Fact#{o => tempus:iso8601(O), type => Type};
+   Fact#{o => scalar:i(O), type => Type};
 
 decode(?XSD_MONTHDAY = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
 decode(?XSD_MONTH = Type, O, Fact) ->
-   Fact#{o => O, type => Type};
+   Fact#{o => scalar:i(O), type => Type};
 
 decode(?XSD_DAY = Type, O, Fact) ->
-   Fact#{o => O, type => Type};
+   Fact#{o => scalar:i(O), type => Type};
 
 %%
 decode(?GEORSS_HASH = Type, O, Fact) ->

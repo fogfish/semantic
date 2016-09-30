@@ -87,9 +87,9 @@ spo_with_uri(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> <http://example.org/c> .\n">>,
    {
       [{
-         {uri, <<"http://example.org/a">>}, 
-         {uri, <<"http://example.org/b">>}, 
-         {uri, <<"http://example.org/c">>}
+         {iri, <<"http://example.org/a">>}, 
+         {iri, <<"http://example.org/b">>}, 
+         {iri, <<"http://example.org/c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
@@ -98,9 +98,9 @@ spo_with_blanknodes(_) ->
    A = <<"_:a _:b _:c .\n">>,
    {
       [{
-         {uri, <<"a">>}, 
-         {uri, <<"b">>}, 
-         {uri, <<"c">>}
+         {iri, <<"a">>}, 
+         {iri, <<"b">>}, 
+         {iri, <<"c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
@@ -110,8 +110,8 @@ spo_with_lit(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> \"c\" .\n">>,
    {
       [{
-         {uri, <<"http://example.org/a">>}, 
-         {uri, <<"http://example.org/b">>}, 
+         {iri, <<"http://example.org/a">>}, 
+         {iri, <<"http://example.org/b">>}, 
          <<"c">>
       }],
       {nt, <<>>}
@@ -123,9 +123,9 @@ spo_with_lang(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> \"c\"@en .\n">>,
    {
       [{
-         {uri, <<"http://example.org/a">>}, 
-         {uri, <<"http://example.org/b">>}, 
-         {<<"en">>, <<"c">>}
+         {iri, <<"http://example.org/a">>}, 
+         {iri, <<"http://example.org/b">>}, 
+         {{iri, <<"lang">>, <<"en">>}, <<"c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
@@ -136,9 +136,9 @@ spo_with_type(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> \"c\"^^<http://www.w3.org/2001/XMLSchema#string> .\n">>,
    {
       [{
-         {uri, <<"http://example.org/a">>}, 
-         {uri, <<"http://example.org/b">>}, 
-         {<<"http://www.w3.org/2001/XMLSchema#string">>, <<"c">>}
+         {iri, <<"http://example.org/a">>}, 
+         {iri, <<"http://example.org/b">>}, 
+         {{iri, <<"http://www.w3.org/2001/XMLSchema#string">>}, <<"c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
@@ -152,9 +152,9 @@ spo_chunked_input(_) ->
    {[], Nt2} = semantic_nt:decode(B, Nt1),
    {
       [{
-         {uri, <<"http://example.org/a">>},
-         {uri, <<"http://example.org/b">>}, 
-         {uri, <<"http://example.org/c">>}
+         {iri, <<"http://example.org/a">>},
+         {iri, <<"http://example.org/b">>}, 
+         {iri, <<"http://example.org/c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(C, Nt2).  
@@ -163,9 +163,9 @@ spo_with_comment(_) ->
    A = <<"# comment\n<http://example.org/a> <http://example.org/b> <http://example.org/c> .\n">>,
    {
       [{
-         {uri, <<"http://example.org/a">>},
-         {uri, <<"http://example.org/b">>},
-         {uri, <<"http://example.org/c">>}
+         {iri, <<"http://example.org/a">>},
+         {iri, <<"http://example.org/b">>},
+         {iri, <<"http://example.org/c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
@@ -174,8 +174,8 @@ spo_with_comment(_) ->
 spo_stream(_) ->
    A = <<"_:a _:b _:c .\n_:d _:e _:f .\n_:q _:a _:z .\n">>,
    [
-      {{uri, <<"a">>}, {uri, <<"b">>}, {uri, <<"c">>}},
-      {{uri, <<"d">>}, {uri, <<"e">>}, {uri, <<"f">>}},
-      {{uri, <<"q">>}, {uri, <<"a">>}, {uri, <<"z">>}}
+      {{iri, <<"a">>}, {iri, <<"b">>}, {iri, <<"c">>}},
+      {{iri, <<"d">>}, {iri, <<"e">>}, {iri, <<"f">>}},
+      {{iri, <<"q">>}, {iri, <<"a">>}, {iri, <<"z">>}}
 
    ] = stdio:list( semantic_nt:decode( stdio:new(A) ) ).  
