@@ -1,4 +1,20 @@
+%%
+%%   Copyright 2012 - 2014 Dmitry Kolesnikov, All Rights Reserved
+%%
+%%   Licensed under the Apache License, Version 2.0 (the "License");
+%%   you may not use this file except in compliance with the License.
+%%   You may obtain a copy of the License at
+%%
+%%       http://www.apache.org/licenses/LICENSE-2.0
+%%
+%%   Unless required by applicable law or agreed to in writing, software
+%%   distributed under the License is distributed on an "AS IS" BASIS,
+%%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%%   See the License for the specific language governing permissions and
+%%   limitations under the License.
+%%
 -module(semantic_jsonld).
+-include("semantic.hrl").
 
 -export([
    decode/1
@@ -73,7 +89,7 @@ typeof(Key, Val, Context) ->
    case Context of
       % expanded term definition
       #{Key := #{<<"@type">> := <<"@id">>}} ->
-         uri;
+         undefined;
 
       #{Key := #{<<"@type">> := Type}} ->
          Type;
@@ -84,9 +100,20 @@ typeof(Key, Val, Context) ->
    end.
 
 
-typeof(Val) when is_binary(Val) -> <<"http://www.w3.org/2001/XMLSchema#string">>;
-typeof(Val) when is_integer(Val) -> <<"http://www.w3.org/2001/XMLSchema#integer">>;
-typeof(Val) when is_float(Val) -> <<"http://www.w3.org/2001/XMLSchema#double">>;
-typeof(true)  -> <<"http://www.w3.org/2001/XMLSchema#boolean">>;
-typeof(false)  -> <<"http://www.w3.org/2001/XMLSchema#boolean">>.
+typeof(Val)
+ when is_binary(Val) -> 
+   {iri, <<"http://www.w3.org/2001/XMLSchema#string">>};
 
+typeof(Val)
+ when is_integer(Val) -> 
+   {iri, <<"http://www.w3.org/2001/XMLSchema#integer">>};
+
+typeof(Val)
+ when is_float(Val) -> 
+   {iri, <<"http://www.w3.org/2001/XMLSchema#double">>};
+
+typeof(true) ->
+   {iri, <<"http://www.w3.org/2001/XMLSchema#boolean">>};
+
+typeof(false)  -> 
+   {iri, <<"http://www.w3.org/2001/XMLSchema#boolean">>}.
