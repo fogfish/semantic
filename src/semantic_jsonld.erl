@@ -30,13 +30,13 @@ spo(S, P, Type, O)
    );
 
 spo(S, P, uri, O) ->
-   {{uri, S}, {uri, P}, {uri, O}};
+   {{iri, S}, {iri, P}, {iri, O}};
 
 spo(S, P, undefined, O) ->
-   {{uri, S}, {uri, P}, O};
+   {{iri, S}, {iri, P}, O};
 
 spo(S, P, Type, O) ->
-   {{uri, S}, {uri, P}, {Type, O}}.
+   {{iri, S}, {iri, P}, {Type, O}}.
 
 %%%------------------------------------------------------------------
 %%%

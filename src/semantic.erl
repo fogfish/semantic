@@ -1,5 +1,6 @@
 %%
-%%   Copyright 2012 - 2014 Dmitry Kolesnikov, All Rights Reserved
+%%   Copyright 2012 - 2016 Dmitry Kolesnikov, All Rights Reserved
+%%   Copyright 2016 Mario Cardona, All Rights Reserved
 %%
 %%   Licensed under the Apache License, Version 2.0 (the "License");
 %%   you may not use this file except in compliance with the License.
@@ -21,22 +22,14 @@
 -export([
    compact/1,
    absolute/1,
-   typed/1
-]).
-
-
-
--export([
-   prefix/1,
-   define/2
-]).
--export([
-   % typed/2,
+   typed/1,
    typeof/1,
    schema/1,
+   define/2,
    nt/1,
    jsonld/1
 ]).
+
 
 -export_type([spock/0, spo/0, iri/0]).
 
@@ -136,113 +129,35 @@ absolute({iri, Prefix, Suffix} = IRI) ->
 %% compiles knowledge statement into type-safe format
 -spec typed( heap(spo()) ) -> heap(spock()).     
 
-typed(Fact) ->
-   semantic_typed:c(Fact).
-
-
-%%
-%% map abstract knowledge statement to Erlang native representation 
-% -spec typed(datum:stream() | _) -> spock().
-% -spec typed(atom(), _) -> spock().
-
-% typed({s, _, _} = Stream) ->
-%    stream:map(
-%       fun(X) -> 
-%          semantic_typed:c(semantic_ns_encode, X) 
-%       end, 
-%       Stream
-%    );
-
-% typed([_|_] = List) ->
-%    lists:map(
-%       fun(X) ->
-%          semantic_typed:c(semantic_ns_encode, X) 
-%       end,
-%       List
-%    );
-
-% typed(Fact) ->
-%    semantic_typed:c(semantic_ns_encode, Fact).
-
-% typed(Prefix, Fact) ->
-%    semantic_typed:c(Prefix, Fact).
-
-
-
-
-
-%%%------------------------------------------------------------------
-%%%
-%%% schema interface
-%%%
-%%%------------------------------------------------------------------
-
-%%
-%% encode uri prefix
--spec prefix(binary() | uri()) -> uri().
-
-prefix({uri, Uri}) ->
-   Uri;
-prefix(Uri) ->
-   semantic_ns_encode:q(undefined, Uri).
-
-%%
-%% define predicate meta-data
-% -spec define(binary(), type() | lang()) -> [spo()].
-
-define(Predicate, rel) ->
-   [
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}}
-   ];
-define(Predicate, Type)
- when is_atom(Type) ->
-   [
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}},
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => semantic_typed:typeof(Type)}
-   ];
-define(Predicate, Lang)
- when is_binary(Lang) ->
-   [
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:type">>},  o => {uri, <<"rdf:Property">>}},
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => {uri, <<"rdf:langString">>}},
-      #{s => {uri, prefix(Predicate)}, p => {uri, <<"rdf:range">>}, o => Lang}
-   ].
-
-
-
-%%%------------------------------------------------------------------
-%%%
-%%% type-safe triple interface
-%%%
-%%%------------------------------------------------------------------
-   
+typed(Facts) ->
+   semantic_typed:c(Facts).
 
 
 %%
 %% return type of knowledge statement
-% -spec typeof(spo()) -> lang() | type().
+-spec typeof(spock()) -> iri().
 
-typeof(Fact) ->
-   semantic_typed:typeof(Fact).
+typeof(#{type := Type}) ->
+   Type;
+typeof(_) ->
+   undefined.
 
-%%%------------------------------------------------------------------
-%%%
-%%% intake interface
-%%%
-%%%------------------------------------------------------------------
 
 %%
-%% build schema of knowledge statements
--spec schema(datum:stream()) -> [spock()].
+%% deduct schema of knowledge statements using actual knowledge statements
+-spec schema( heap(spock()) ) -> heap(spock()).
 
-schema({s, _, _} = Stream) ->
-   gb_sets:to_list(
-      stream:fold(fun schema/2, gb_sets:new(), Stream)
-   ).
+schema(Facts) ->
+   semantic_schema:deduct(Facts).
 
-schema(#{p := P} = Fact, Set) ->
-   Type = semantic:typeof(Fact),
-   gb_sets:union(gb_sets:from_list(define(P, Type)), Set).
+
+%%
+%% define property schema
+-spec define(p(), iri()) -> [spock()].
+
+define(P, Type) ->
+   semantic_schema:define(P, Type).
+
 
 %%
 %% build stream of knowledge statements from n-triples.

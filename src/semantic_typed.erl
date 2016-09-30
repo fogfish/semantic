@@ -19,34 +19,23 @@
 -include("semantic.hrl").
 
 -export([
-   % typeof/1,
    c/1
 ]).
 
 
 %%
-%%
-typeof(#{type := geohash}) -> geohash;
-typeof(#{type := Type})  -> Type;
+%% compile abstract syntax knowledge statement to type-safe once
+c({{iri, _}, {iri, _}, _} = Fact) ->
+   compile(Fact);
 
-typeof(#{o := {uri, _}}) -> rel;
-typeof(#{o := X}) when is_integer(X) -> integer;
-typeof(#{o := X}) when is_float(X)   -> float;
-typeof(#{o := X}) when is_boolean(X) -> boolean;
-typeof(#{o := {_, _, _}}) -> datetime;
-typeof(#{o := X}) when is_binary(X) -> binary;
+c({s, _, _} = Stream) ->
+   stream:map(fun compile/1, Stream);
 
-typeof(binary)   -> {uri, <<"xsd:string">>};
-typeof(integer)  -> {uri, <<"xsd:integer">>};
-typeof(float)    -> {uri, <<"xsd:double">>};
-typeof(boolean)  -> {uri, <<"xsd:boolean">>};
-typeof(datetime) -> {uri, <<"xsd:dateTime">>};
-typeof(geohash)  -> {uri, <<"georss:point">>}.
+c([_|_] = List) ->
+   lists:map(fun compile/1, List).
 
 
-%%
-%% compile abstract syntax triple to type-safe
-c({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
+compile({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
    #{
       s => semantic:compact(S),
       p => semantic:compact(P),
@@ -55,7 +44,7 @@ c({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
       k => uid:l()
    };
 
-c({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
+compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
    #{
       s => semantic:compact(S),
       p => semantic:compact(P),
@@ -65,7 +54,7 @@ c({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
       type => Type
    };
 
-c({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
+compile({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
    decode(semantic:compact(Type), O,
       #{
          s => semantic:compact(S),
@@ -75,7 +64,7 @@ c({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
       }
    );
 
-c({{iri, _} = S, {iri, _} = P, O}) ->
+compile({{iri, _} = S, {iri, _} = P, O}) ->
    decode(O,
       #{
          s => semantic:compact(S),
@@ -88,80 +77,80 @@ c({{iri, _} = S, {iri, _} = P, O}) ->
 
 %%
 %% type-safe decode
-decode(?STRING = Type, O, Fact) ->
+decode(?XSD_STRING = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
 %%
-decode(?INTEGER = Type, O, Fact) -> 
+decode(?XSD_INTEGER = Type, O, Fact) -> 
    Fact#{o => scalar:i(O), type => Type};
 
 %%
-decode(?BYTE = Type, O, Fact) ->
+decode(?XSD_BYTE = Type, O, Fact) ->
    Fact#{o => scalar:i(O), type => Type};
 
-decode(?SHORT = Type, O, Fact) ->
+decode(?XSD_SHORT = Type, O, Fact) ->
    Fact#{o => scalar:i(O), type => Type};
 
-decode(?INT = Type, O, Fact) ->
+decode(?XSD_INT = Type, O, Fact) ->
    Fact#{o => scalar:i(O), type => Type};
 
-decode(?LONG = Type, O, Fact) ->
+decode(?XSD_LONG = Type, O, Fact) ->
    Fact#{o => scalar:i(O), type => Type};
 
 
 %%
-decode(?DECIMAL = Type, O, Fact) ->
+decode(?XSD_DECIMAL = Type, O, Fact) ->
    Fact#{o => scalar:f(O), type => Type};
 
-decode(?FLOAT = Type, O, Fact) ->
+decode(?XSD_FLOAT = Type, O, Fact) ->
    Fact#{o => scalar:f(O), type => Type};
 
-decode(?DOUBLE = Type, O, Fact) ->
+decode(?XSD_DOUBLE = Type, O, Fact) ->
    Fact#{o => scalar:f(O), type => Type};
 
 %%
-decode(?BOOLEAN = Type, <<"true">>, Fact) ->
+decode(?XSD_BOOLEAN = Type, <<"true">>, Fact) ->
    Fact#{o => true, type => Type};
 
-decode(?BOOLEAN = Type, <<"false">>, Fact) ->
+decode(?XSD_BOOLEAN = Type, <<"false">>, Fact) ->
    Fact#{o => false, type => Type};
 
-decode(?BOOLEAN = Type, <<"1">>, Fact) ->
+decode(?XSD_BOOLEAN = Type, <<"1">>, Fact) ->
    Fact#{o => true, type => Type};
 
-decode(?BOOLEAN = Type, <<"0">>, Fact) ->
+decode(?XSD_BOOLEAN = Type, <<"0">>, Fact) ->
    Fact#{o => false, type => Type};
 
 %%
-decode(?DATETIME = Type, O, Fact) ->
+decode(?XSD_DATETIME = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
-decode(?DATE = Type, O, Fact) ->
+decode(?XSD_DATE = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
-decode(?TIME = Type, O, Fact) ->
+decode(?XSD_TIME = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
-decode(?YEARMONTH = Type, O, Fact) ->
+decode(?XSD_YEARMONTH = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
-decode(?YEAR = Type, O, Fact) ->
+decode(?XSD_YEAR = Type, O, Fact) ->
    Fact#{o => tempus:iso8601(O), type => Type};
 
-decode(?MONTHDAY = Type, O, Fact) ->
+decode(?XSD_MONTHDAY = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
-decode(?MONTH = Type, O, Fact) ->
+decode(?XSD_MONTH = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
-decode(?DAY = Type, O, Fact) ->
+decode(?XSD_DAY = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
 %%
-decode(?GEOHASH = Type, O, Fact) ->
+decode(?GEORSS_HASH = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
-decode(?GEOPOINT = Type, O, Fact) ->
+decode(?GEORSS_POINT = Type, O, Fact) ->
    [Lat, Lng] = binary:split(O, <<$ >>), 
    Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => Type}. 
 
@@ -169,27 +158,27 @@ decode(?GEOPOINT = Type, O, Fact) ->
 %%
 %% relax decode
 decode(<<"true">>, Fact) ->
-   Fact#{o => true,  type => ?BOOLEAN};
+   Fact#{o => true,  type => ?XSD_BOOLEAN};
 
 decode(<<"false">>, Fact) ->
-   Fact#{o => false, type => ?BOOLEAN};
+   Fact#{o => false, type => ?XSD_BOOLEAN};
 
 decode(LatLng, #{p := {iri, <<"georss">>, <<"point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEOPOINT}; 
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEORSS_POINT}; 
 
 decode(LatLng, #{p := {iri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEOPOINT};
+   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEORSS_POINT};
 
 decode(O, Fact) ->
    case scalar:decode(O) of
       X when is_integer(X) ->
-         Fact#{o => X, type => ?INTEGER};
+         Fact#{o => X, type => ?XSD_INTEGER};
       X when is_float(X) ->
-         Fact#{o => X, type => ?DOUBLE};
+         Fact#{o => X, type => ?XSD_DOUBLE};
       X when is_boolean(X) ->
-         Fact#{o => X, type => ?BOOLEAN};
+         Fact#{o => X, type => ?XSD_BOOLEAN};
       X when is_binary(X) ->
-         Fact#{o => X, type => ?STRING}
+         Fact#{o => X, type => ?XSD_STRING}
    end.
