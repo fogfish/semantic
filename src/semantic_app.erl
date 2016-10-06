@@ -16,6 +16,7 @@
 %% @doc
 %%   semantic web toolkit
 -module(semantic_app).
+-behaviour(application).
 
 -export([
    start/2
