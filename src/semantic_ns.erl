@@ -31,17 +31,15 @@ encoder(Id, Kns)
  when is_atom(Id), is_list(Kns) ->
    hornlog:c(Id, [encoder(X) || X <- extend(Kns)]).
 
-encoder({{uri, Ns}, {uri,<<"rdfs:domain">>}, {uri, Uri}}) ->
+encoder({{iri, Ns}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
    hornlog:rule(hornlog:like(fun semantic_ns:encode/3, [Ns]), Uri).
 
 %%
 %%
 encode(<<>>, _X, Suffix) ->
    Suffix;
-encode(Ns, _X, <<>>) ->
-   Ns;
 encode(Ns, _X, Suffix) ->
-   <<Ns/binary, $:, Suffix/binary>>.
+   {Ns, Suffix}.
 
 
 %%
@@ -51,15 +49,13 @@ decoder(Id, Kns)
  when is_atom(Id), is_list(Kns) ->
    hornlog:c(Id, [decoder(X) || X <- extend(Kns)]).
 
-decoder({{uri, <<>>}, {uri,<<"rdfs:domain">>}, {uri, Uri}}) ->
+decoder({{iri, <<>>}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
    hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<>>);
-decoder({{uri, Ns}, {uri,<<"rdfs:domain">>}, {uri, Uri}}) ->
-   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<Ns/binary, $:>>).
+decoder({{iri, Ns}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
+   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<Ns/binary>>).
 
 decode(<<>>, _X, Suffix) ->
    Suffix;
-decode(Uri, _X, <<>>) ->
-   Uri;
 decode(Uri, _X, Suffix) ->
    <<Uri/binary, Suffix/binary>>.
 
@@ -67,4 +63,4 @@ decode(Uri, _X, Suffix) ->
 %%
 %% extends list of knowledge name-space with empty statement to fall-back prefix match
 extend(Kns) -> 
-   Kns ++ [{{uri, <<>>}, {uri,<<"rdfs:domain">>}, {uri, <<>>}}].
+   Kns ++ [{{iri, <<>>}, {iri,<<"rdfs:domain">>}, {iri, <<>>}}].

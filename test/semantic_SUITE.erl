@@ -55,7 +55,7 @@ groups() ->
 %%%
 %%%----------------------------------------------------------------------------   
 init_per_suite(Config) ->
-   ok = semantic:prefixes(),
+   ok = semantic:start(),
    Config.
 
 end_per_suite(_Config) ->
@@ -75,22 +75,30 @@ end_per_group(_, _Config) ->
 %%% unit tests
 %%%
 %%%----------------------------------------------------------------------------   
+-define(FOAF_NAME,    {iri, <<"foaf">>, <<"name">>}).
+-define(RDF_TYPE,     {iri, <<"rdf">>, <<"type">>}).
+-define(RDF_RANGE,    {iri, <<"rdf">>, <<"range">>}).
+-define(RDF_PROPERTY, {iri, <<"rdf">>, <<"Property">>}).
+-define(RDF_LANG_STRING, {iri, <<"rdf">>, <<"langString">>}).
+-define(XSD_STRING,   {iri, <<"xsd">>, <<"string">>}).
+-define(LANG_EN,      {iri, <<"lang">>, <<"en">>}).
+
 
 define_uri(_Config) ->
    [
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:type">>}, o := {uri, <<"rdf:Property">>}}
-   ] = semantic:define(<<"http://xmlns.com/foaf/0.1/name">>, rel).
+      #{s := ?FOAF_NAME, p := ?RDF_TYPE, o := ?RDF_PROPERTY}
+   ] = semantic:define({iri, <<"http://xmlns.com/foaf/0.1/name">>}).
 
 define_string(_Config) ->
    [
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:type">>},  o := {uri, <<"rdf:Property">>}},
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:range">>}, o := {uri, <<"xsd:string">>}}
-   ] = semantic:define(<<"http://xmlns.com/foaf/0.1/name">>, binary).
+      #{s := ?FOAF_NAME, p := ?RDF_TYPE,  o := ?RDF_PROPERTY},
+      #{s := ?FOAF_NAME, p := ?RDF_RANGE, o := ?XSD_STRING}
+   ] = semantic:define({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?XSD_STRING).
 
 define_lang(_Config) ->
    [
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:type">>},  o := {uri, <<"rdf:Property">>}},
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:range">>}, o := {uri, <<"rdf:langString">>}},
-      #{s := {uri, <<"foaf:name">>}, p := {uri, <<"rdf:range">>}, o := <<"en">>}
-   ] = semantic:define(<<"http://xmlns.com/foaf/0.1/name">>, <<"en">>).
+      #{s := ?FOAF_NAME, p := ?RDF_TYPE,  o := ?RDF_PROPERTY},
+      #{s := ?FOAF_NAME, p := ?RDF_RANGE, o := ?RDF_LANG_STRING},
+      #{s := ?FOAF_NAME, p := ?RDF_RANGE, o := ?LANG_EN}
+   ] = semantic:define({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?LANG_EN).
 
