@@ -45,7 +45,7 @@ spo(S, P, Type, O)
       lists:zip(Type, O) 
    );
 
-spo(S, P, uri, O) ->
+spo(S, P, rel, O) ->
    {{iri, S}, {iri, P}, {iri, O}};
 
 spo(S, P, undefined, O) ->
@@ -89,10 +89,14 @@ typeof(Key, Val, Context) ->
    case Context of
       % expanded term definition
       #{Key := #{<<"@type">> := <<"@id">>}} ->
-         undefined;
+         rel;
+
+      #{Key := #{<<"@type">> := <<"_:", Type/binary>>}} ->
+         [Prefix, Suffix] = binary:split(Type, <<$:>>),
+         semantic:absolute({iri, Prefix, Suffix});
 
       #{Key := #{<<"@type">> := Type}} ->
-         Type;
+         {iri, Type};
 
       % key is not defined at context
       _ ->
