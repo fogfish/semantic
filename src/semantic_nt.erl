@@ -232,8 +232,14 @@ decode_o(<<$", _/binary>>=X) ->
          {{{iri, ?LANG, Lang}, Head}, Tail};
 
       {Head, <<$^, $^, Rest/binary>>} ->
-         {Type, Tail} = unquote(Rest, <<$<>>, <<$>>>),
-         {{{iri, Type}, Head},  Tail};
+         case Rest of
+            <<$<, _/binary>> ->
+               {Type, Tail} = unquote(Rest, <<$<>>, <<$>>>),
+               {{{iri, Type}, Head},  Tail};
+            _ ->
+               {Type, Tail} = split(Rest, <<$ >>),
+               {{{iri, Type}, Head},  Tail}
+         end;
 
       {_Head, _Tail} = Result ->
          Result
@@ -260,16 +266,16 @@ encode_t([{{iri, S}, {iri, P}, {iri, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $<, O/binary, $>, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{iri, S}, {iri, P}, {<<_:16>> = Lang, O}} | Tail]) ->
+encode_t([{{iri, S}, {iri, P}, {{iri, ?LANG, Lang}, O}} | Tail]) ->
    X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{iri, S}, {iri, P}, {<<_:16, $-, _:16>> = Lang, O}} | Tail]) ->
-   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $@, Lang/binary, $ , $., $\n>>,
+encode_t([{{iri, S}, {iri, P}, {{iri, Type}, O}} | Tail]) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $^, $^, $<, Type/binary, $>, $ , $., $\n>>,
    [X | encode_t(Tail)];
 
-encode_t([{{iri, S}, {iri, P}, {Type, O}} | Tail]) ->
-   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $^, $^, Type/binary, $ , $., $\n>>,
+encode_t([{{iri, S}, {iri, P}, O} | Tail]) when is_binary(O) ->
+   X = <<$<, S/binary, $>, $ , $<, P/binary, $>, $ , $", O/binary, $", $ , $., $\n>>,
    [X | encode_t(Tail)];
 
 encode_t([]) ->
