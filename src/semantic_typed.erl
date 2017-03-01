@@ -72,17 +72,17 @@ c([_|_] = List) ->
 
 compile({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
    #{
-      s => semantic:compact(S),
-      p => semantic:compact(P),
-      o => semantic:compact(O),
+      s => get_or_else(semantic:compact(S), S),
+      p => get_or_else(semantic:compact(P), P),
+      o => get_or_else(semantic:compact(O), O),
       c => 1.0,
       k => uid:l()
    };
 
 compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
    #{
-      s => semantic:compact(S),
-      p => semantic:compact(P),
+      s => get_or_else(semantic:compact(S), S),
+      p => get_or_else(semantic:compact(P), P),
       o => O,
       c => 1.0,
       k => uid:l(),
@@ -92,8 +92,8 @@ compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
 compile({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
    decode(semantic:compact(Type), O,
       #{
-         s => semantic:compact(S),
-         p => semantic:compact(P),
+         s => get_or_else(semantic:compact(S), S),
+         p => get_or_else(semantic:compact(P), P),
          c => 1.0,
          k => uid:l()
       }
@@ -102,8 +102,8 @@ compile({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
 compile({{iri, _} = S, {iri, _} = P, O}) ->
    decode(O,
       #{
-         s => semantic:compact(S),
-         p => semantic:compact(P),
+         s => get_or_else(semantic:compact(S), S),
+         p => get_or_else(semantic:compact(P), P),
          c => 1.0,
          k => uid:l()
       }
@@ -217,3 +217,9 @@ decode(O, Fact) ->
       X when is_binary(X) ->
          Fact#{o => X, type => ?XSD_STRING}
    end.
+
+
+get_or_else(undefined, X) ->
+   X;
+get_or_else(X, _) ->
+   X.

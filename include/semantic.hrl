@@ -18,9 +18,16 @@
 -define(LANG,    <<"lang">>).
 
 -define(RDF_TYPE,        {iri, <<"rdf">>, <<"type">>}).
+-define(RDF_DATATYPE,    {iri, <<"rdf">>, <<"datatype">>}).
 -define(RDF_PROPERTY,    {iri, <<"rdf">>, <<"Property">>}).
+-define(RDF_SEQ,         {iri, <<"rdf">>, <<"Seq">>}).
 -define(RDF_RANGE,       {iri, <<"rdf">>, <<"range">>}).
 -define(RDF_LANG_STRING, {iri, <<"rdf">>, <<"langString">>}).
+
+-define(OWL_FUNCTIONAL_PROPERTY, 
+   {iri, <<"owl">>, <<"FunctionalProperty">>}).
+-define(OWL_INVERSE_FUNCTIONAL_PROPERTY,
+   {iri, <<"owl">>, <<"InverseFunctionalProperty">>}).
 
 %%
 -define(XSD_STRING,      {iri, <<"xsd">>, <<"string">>}).
@@ -49,5 +56,15 @@
 
 -define(GEORSS_POINT,    {iri, <<"georss">>, <<"point">>}).
 -define(GEORSS_HASH,     {iri, <<"georss">>, <<"hash">>}).
+
+%%
+%% 
+-record(rdf_property, {
+   id       = undefined :: semantic:iri(),
+   datatype = undefined :: semantic:iri(),
+   single   = false     :: true | false,
+   unique   = false     :: true | false      
+}).
+
 
 

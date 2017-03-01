@@ -18,6 +18,8 @@
 -module(semantic_app).
 -behaviour(application).
 
+-include("semantic.hrl").
+
 -export([
    start/2
   ,stop/1
@@ -26,6 +28,7 @@
 %%
 %%
 start(_Type, _Args) ->
+   schema(),
    config(),
    {ok, self()}. 
 
@@ -56,6 +59,15 @@ prefixes(Enc, Dec, Kns)
    {module, Dec} = semantic_ns:decoder(Dec, Kns),
    ok.
 
-
+%%
+%% schema table
+schema() ->
+   _  = ets:new(semantic, [
+      public
+     ,named_table
+     ,set
+     ,{keypos, #rdf_property.id}
+     ,{read_concurrency,  true}
+   ]).
 
 

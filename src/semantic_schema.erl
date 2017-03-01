@@ -18,13 +18,16 @@
 
 -export([
    deduct/1,
-   define/1,
-   define/2
+   property/1,
+   property/2,
+   define/1
 ]).
 
 
 %%
 %% deduct schema of knowledge statements
+-spec deduct(semantic:heap(semantic:spock())) -> semantic:heap(#rdf_property{}).
+
 deduct({s, _, _} = Stream) ->
    gb_sets:to_list(
       stream:fold(fun deduct/2, gb_sets:new(), Stream)
@@ -36,54 +39,110 @@ deduct([_|_] = List) ->
    ).
 
 deduct(#{p := P, type := Type}, Set) ->
-   gb_sets:union(gb_sets:from_list(define(P, Type)), Set);
+   gb_sets:union(gb_sets:from_list(property(P, Type)), Set);
 
 deduct(#{p := P}, Set) ->
-   gb_sets:union(gb_sets:from_list(define(P)), Set).
+   gb_sets:union(gb_sets:from_list(property(P)), Set).
 
 
 
 %%
-%% define predicate meta-data
-define(Predicate) ->
-   [property(Predicate)].
+%% define new predicate into global schema
+-spec property(#rdf_property{}) -> #rdf_property{}. %[semantic:spock()].
 
-define(Predicate, {iri, ?LANG, _} = Type) ->
-   [property(Predicate), lang_string(Predicate), range(Predicate, Type)];
+property(#rdf_property{id = IRI, datatype = DataType} = Property) ->
+   {iri, _, _} = Uid = semantic:compact(IRI),
+   {iri, _, _} = IsA = semantic:compact(DataType),
+   Property#rdf_property{id = Uid, datatype = IsA};
 
-define(Predicate, Type) -> 
-   [property(Predicate), range(Predicate, Type)].
+property({iri, _} = IRI) ->
+   {iri, _, _} = Uid = semantic:compact(IRI),
+   #rdf_property{id = Uid};
+
+property({iri, _, _} = IRI) ->
+   #rdf_property{id = IRI}.
+
+%%
+%%
+-spec property(semantic:iri(), semantic:iri()) -> #rdf_property{}.
+
+property({iri, _} = IRI, DataType) ->
+   {iri, _, _} = Uid = semantic:compact(IRI),
+   {iri, _, _} = IsA = semantic:compact(DataType),
+   #rdf_property{id = Uid, datatype = IsA};
+   
+property({iri, _, _} = IRI, DataType) ->
+   {iri, _, _} = IsA = semantic:compact(DataType),
+   #rdf_property{id = IRI, datatype = IsA}.
 
 
 %%
 %%
-property(Predicate) ->
-   #{
-      s => semantic:compact(Predicate),
+-spec define(#rdf_property{}) -> [semantic:spock()].
+
+define(#rdf_property{} = Property) ->
+   rdf_property(Property).
+
+%%
+rdf_property(#rdf_property{id = IRI} = Property) ->
+   [#{
+      s => IRI,
       p => ?RDF_TYPE,
       o => ?RDF_PROPERTY,
       c => 1.0,
       k => uid:l()
-   }.
+   } | rdf_datatype(Property)].
 
 %%
-%%
-lang_string(Predicate) ->
-   #{
-      s => semantic:compact(Predicate),
-      p => ?RDF_RANGE,
+rdf_datatype(#rdf_property{datatype = undefined} = Property) ->
+   rdf_functional(Property);
+
+rdf_datatype(#rdf_property{id = IRI, datatype = {iri, ?LANG, _} = DataType} = Property) ->
+   [#{
+      s => IRI,
+      p => ?RDF_DATATYPE,
       o => ?RDF_LANG_STRING,
       c => 1.0,
       k => uid:l()
-   }.
-
-%%
-%%
-range(Predicate, Type) ->
+   },
    #{
-      s => semantic:compact(Predicate),
-      p => ?RDF_RANGE,
-      o => semantic:compact(Type),
+      s => IRI,
+      p => ?RDF_DATATYPE,
+      o => DataType,
       c => 1.0,
       k => uid:l()
-   }.
+   } | rdf_functional(Property)];
+
+rdf_datatype(#rdf_property{id = IRI, datatype = DataType} = Property) ->
+   [#{
+      s => IRI,
+      p => ?RDF_DATATYPE,
+      o => DataType,
+      c => 1.0,
+      k => uid:l()
+   } | rdf_functional(Property)].   
+
+%%
+rdf_functional(#rdf_property{single = false} = Property) ->
+   rdf_inverse(Property);
+rdf_functional(#rdf_property{id = IRI} = Property) ->
+   [#{
+      s => IRI,
+      p => ?RDF_TYPE,
+      o => ?OWL_FUNCTIONAL_PROPERTY,
+      c => 1.0,
+      k => uid:l()
+   } | rdf_inverse(Property)].
+
+%%
+rdf_inverse(#rdf_property{unique = false}) ->
+   [];
+rdf_inverse(#rdf_property{id = IRI} = Property) ->
+   [#{
+      s => IRI,
+      p => ?RDF_TYPE,
+      o => ?OWL_INVERSE_FUNCTIONAL_PROPERTY,
+      c => 1.0,
+      k => uid:l()
+   } | rdf_inverse(Property)].
+

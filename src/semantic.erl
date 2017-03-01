@@ -18,15 +18,20 @@
 %%   semantic web toolkit
 -module(semantic).
 
+-include("semantic.hrl").
+
 -export([start/0]).
 -export([
    compact/1,
    absolute/1,
    typed/1,
    typeof/1,
+   property/1,
+   property/2,
+   deduct/1,
    schema/1,
-   define/1,
-   define/2,
+   create/1,
+   lookup/1,
    nt/1,
    jsonld/1
 ]).
@@ -98,14 +103,14 @@ start() ->
 
 %%
 %% encodes IRI to compact format
--spec compact(iri()) -> iri().
+-spec compact(iri()) -> undefined | iri().
 
 compact({iri, _, _} = IRI) ->
    IRI;
-compact({iri,  Uri} = IRI) ->
+compact({iri,  Uri}) ->
    case semantic_ns_encode:q(undefined, Uri) of
       Uri ->
-         IRI;
+         undefined;
       {Prefix, Suffix} ->
          {iri, Prefix, Suffix}
    end.
@@ -113,14 +118,14 @@ compact({iri,  Uri} = IRI) ->
 
 %%
 %% decodes IRI to absolute format
--spec absolute(iri()) -> iri().
+-spec absolute(iri()) -> undefined | iri().
 
 absolute({iri, _} = IRI) ->
    IRI;
-absolute({iri, Prefix, Suffix} = IRI) ->
+absolute({iri, Prefix, Suffix}) ->
    case semantic_ns_decode:q(undefined, Prefix) of
       Prefix   ->
-         IRI;
+         undefined;
       Absolute ->
          {iri, <<Absolute/binary, Suffix/binary>>}
    end.
@@ -143,26 +148,50 @@ typeof(Fact) ->
 
 
 %%
-%% deduct schema of knowledge statements using actual knowledge statements
--spec schema( heap(spock()) ) -> heap(spock()).
+%% define new property
+-spec property(#rdf_property{}) -> #rdf_property{}.
+-spec property(semantic:iri(), semantic:iri()) -> #rdf_property{}. 
 
-schema(Facts) ->
+property(Spec) ->
+   semantic_schema:property(Spec).
+
+property(P, DataType) ->
+   semantic_schema:property(P, DataType).
+
+
+%%
+%% deduct schema of knowledge statements using actual knowledge statements
+-spec deduct( heap(spock()) ) -> heap(#rdf_property{}).
+
+deduct(Facts) ->
    semantic_schema:deduct(Facts).
 
 %%
-%% define property schema
--spec define(p()) -> [spock()].
+%% define new property
+-spec schema(#rdf_property{}) -> [spock()].
 
-define(P) ->
+schema(P) ->
    semantic_schema:define(P).
 
-
 %%
-%% define property schema
--spec define(p(), iri()) -> [spock()].
+%%
+-spec create(#rdf_property{}) -> true | false.
 
-define(P, Type) ->
-   semantic_schema:define(P, Type).
+create(#rdf_property{} = Property) ->
+   ets:insert_new(semantic, Property).
+
+-spec lookup(iri()) -> undefined | #rdf_property{}.
+
+lookup({iri, _, _} = IRI) ->
+   case ets:lookup(semantic, IRI) of
+      [#rdf_property{} = Property] ->
+         Property;
+      _ ->
+         undefined
+   end;
+
+lookup({iri, _} = IRI) ->
+   lookup(compact(IRI)). 
 
 
 %%
