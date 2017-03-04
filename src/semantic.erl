@@ -215,7 +215,7 @@ lookup({iri, _, _} = IRI) ->
          undefined
    end;
 
-lookup({iri, _} = IRI) ->
+lookup(IRI) ->
    lookup(compact(IRI)). 
 
 
