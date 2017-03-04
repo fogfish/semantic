@@ -88,18 +88,18 @@ end_per_group(_, _Config) ->
 define_uri(_Config) ->
    [
       #{s := ?FOAF_NAME, p := ?RDF_TYPE, o := ?RDF_PROPERTY}
-   ] = semantic:schema(semantic:property({iri, <<"http://xmlns.com/foaf/0.1/name">>})).
+   ] = semantic:schema(semantic:p({iri, <<"http://xmlns.com/foaf/0.1/name">>})).
 
 define_string(_Config) ->
    [
       #{s := ?FOAF_NAME, p := ?RDF_TYPE,     o := ?RDF_PROPERTY},
       #{s := ?FOAF_NAME, p := ?RDF_DATATYPE, o := ?XSD_STRING}
-   ] = semantic:schema(semantic:property({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?XSD_STRING)).
+   ] = semantic:schema(semantic:p({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?XSD_STRING)).
 
 define_lang(_Config) ->
    [
       #{s := ?FOAF_NAME, p := ?RDF_TYPE,     o := ?RDF_PROPERTY},
       #{s := ?FOAF_NAME, p := ?RDF_DATATYPE, o := ?RDF_LANG_STRING},
       #{s := ?FOAF_NAME, p := ?RDF_DATATYPE, o := ?LANG_EN}
-   ] = semantic:schema(semantic:property({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?LANG_EN)).
+   ] = semantic:schema(semantic:p({iri, <<"http://xmlns.com/foaf/0.1/name">>}, ?LANG_EN)).
 
