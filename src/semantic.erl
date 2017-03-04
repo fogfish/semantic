@@ -19,6 +19,7 @@
 -module(semantic).
 
 -include("semantic.hrl").
+-compile({parse_transform, category}).
 
 -export([start/0]).
 -export([
@@ -216,7 +217,7 @@ lookup({iri, _, _} = IRI) ->
    end;
 
 lookup(IRI) ->
-   lookup(compact(IRI)). 
+   [$? || compact(IRI), lookup(_)]. 
 
 
 %%
