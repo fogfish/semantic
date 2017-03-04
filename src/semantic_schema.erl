@@ -55,26 +55,26 @@ property(#rdf_property{id = IRI, datatype = DataType} = Property) ->
    {iri, _, _} = IsA = semantic:compact(DataType),
    Property#rdf_property{id = Uid, datatype = IsA};
 
-property({iri, _} = IRI) ->
-   {iri, _, _} = Uid = semantic:compact(IRI),
-   #rdf_property{id = Uid};
-
 property({iri, _, _} = IRI) ->
-   #rdf_property{id = IRI}.
+   #rdf_property{id = IRI};
+
+property(IRI) ->
+   {iri, _, _} = Uid = semantic:compact(IRI),
+   #rdf_property{id = Uid}.
 
 %%
 %%
 -spec property(semantic:iri(), semantic:iri()) -> #rdf_property{}.
 
-property({iri, _} = IRI, DataType) ->
-   {iri, _, _} = Uid = semantic:compact(IRI),
-   {iri, _, _} = IsA = semantic:compact(DataType),
-   #rdf_property{id = Uid, datatype = IsA};
-   
 property({iri, _, _} = IRI, DataType) ->
    {iri, _, _} = IsA = semantic:compact(DataType),
-   #rdf_property{id = IRI, datatype = IsA}.
+   #rdf_property{id = IRI, datatype = IsA};
 
+property(IRI, DataType) ->
+   {iri, _, _} = Uid = semantic:compact(IRI),
+   {iri, _, _} = IsA = semantic:compact(DataType),
+   #rdf_property{id = Uid, datatype = IsA}.
+   
 %%
 %%
 -spec define(#rdf_property{}) -> [semantic:spock()].

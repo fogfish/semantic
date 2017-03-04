@@ -26,8 +26,8 @@
    absolute/1,
    typed/1,
    typeof/1,
-   property/1,
-   property/2,
+   p/1,
+   p/2,
    seq/2,
    deduct/1,
    schema/1,
@@ -156,15 +156,16 @@ typeof(Fact) ->
 
 
 %%
-%% define new property
--spec property(#rdf_property{}) -> #rdf_property{}.
--spec property(semantic:iri(), semantic:iri()) -> #rdf_property{}. 
+%% define new predicate
+-spec p(#rdf_property{}) -> #rdf_property{}.
+-spec p(semantic:iri(), semantic:iri()) -> #rdf_property{}. 
 
-property(Spec) ->
+p(Spec) ->
    semantic_schema:property(Spec).
 
-property(P, DataType) ->
+p(P, DataType) ->
    semantic_schema:property(P, DataType).
+
 
 %%
 %% define new seq
@@ -193,7 +194,7 @@ schema(P) ->
 
 %%
 %%
--spec create(#rdf_property{}) -> true | false.
+-spec create(#rdf_property{} | #rdf_seq{}) -> true | false.
 
 create(#rdf_property{} = Property) ->
    ets:insert_new(semantic, Property);
