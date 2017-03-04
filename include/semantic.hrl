@@ -66,5 +66,12 @@
    unique   = false     :: true | false      
 }).
 
+%%
+%%
+-record(rdf_seq, {
+   id       = undefined :: semantic:iri(),
+   seq      = []        :: [semantic:iri() | #rdf_property{}]
+}).
+
 
 

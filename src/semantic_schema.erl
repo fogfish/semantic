@@ -75,7 +75,6 @@ property({iri, _, _} = IRI, DataType) ->
    {iri, _, _} = IsA = semantic:compact(DataType),
    #rdf_property{id = IRI, datatype = IsA}.
 
-
 %%
 %%
 -spec define(#rdf_property{}) -> [semantic:spock()].

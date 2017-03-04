@@ -28,6 +28,7 @@
    typeof/1,
    property/1,
    property/2,
+   seq/2,
    deduct/1,
    schema/1,
    create/1,
@@ -158,6 +159,16 @@ property(Spec) ->
 property(P, DataType) ->
    semantic_schema:property(P, DataType).
 
+%%
+%% define new seq
+-spec seq(semantic:iri(), [semantic:iri()]) -> #rdf_seq{}.
+
+seq(IRI, Properties) ->
+   {iri, _, _} = Seq = semantic:compact(IRI),
+   #rdf_seq{
+      id  = Seq,
+      seq = [lookup(X) || X <- Properties]
+   }.
 
 %%
 %% deduct schema of knowledge statements using actual knowledge statements
@@ -178,7 +189,11 @@ schema(P) ->
 -spec create(#rdf_property{}) -> true | false.
 
 create(#rdf_property{} = Property) ->
-   ets:insert_new(semantic, Property).
+   ets:insert_new(semantic, Property);
+
+create(#rdf_seq{} = Seq) ->
+   ets:insert_new(semantic, Seq).
+
 
 -spec lookup(iri()) -> undefined | #rdf_property{}.
 
@@ -186,6 +201,8 @@ lookup({iri, _, _} = IRI) ->
    case ets:lookup(semantic, IRI) of
       [#rdf_property{} = Property] ->
          Property;
+      [#rdf_seq{} = Seq] ->
+         Seq;
       _ ->
          undefined
    end;
