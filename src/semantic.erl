@@ -114,8 +114,14 @@ compact({iri,  Uri}) ->
          undefined;
       {Prefix, Suffix} ->
          {iri, Prefix, Suffix}
+   end;
+compact(IRI) ->
+   case binary:split(scalar:s(IRI), <<$:>>) of
+      [Prefix, Suffix] -> 
+         {iri, Prefix, Suffix};
+      _ ->
+         undefined
    end.
-
 
 %%
 %% decodes IRI to absolute format
@@ -129,8 +135,9 @@ absolute({iri, Prefix, Suffix}) ->
          undefined;
       Absolute ->
          {iri, <<Absolute/binary, Suffix/binary>>}
-   end.
-
+   end;
+absolute(IRI) ->
+   {iri, scalar:s(IRI)}.
 
 %%
 %% compiles knowledge statement into type-safe format
