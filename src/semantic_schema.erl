@@ -128,7 +128,7 @@ rdf_functional(#rdf_property{id = IRI} = Property) ->
    [#{
       s => IRI,
       p => ?RDF_TYPE,
-      o => ?OWL_FUNCTIONAL_PROPERTY,
+      o => ?OWL_SINGLE,
       c => 1.0,
       k => uid:l()
    } | rdf_inverse(Property)].
@@ -140,7 +140,7 @@ rdf_inverse(#rdf_property{id = IRI} = Property) ->
    [#{
       s => IRI,
       p => ?RDF_TYPE,
-      o => ?OWL_INVERSE_FUNCTIONAL_PROPERTY,
+      o => ?OWL_UNIQUE,
       c => 1.0,
       k => uid:l()
    } | rdf_inverse(Property)].
