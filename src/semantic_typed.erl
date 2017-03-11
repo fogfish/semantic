@@ -54,7 +54,7 @@ native(#{type := ?XSD_DAY}) -> integer;
 native(#{type := ?GEORSS_POINT}) -> geohash;
 native(#{type := ?GEORSS_HASH}) -> geohash;
 
-native(#{type := {iri, <<"lang">>, Lang}}) -> Lang;
+native(#{type := {iri, ?LANG, Lang}}) -> Lang;
 native(_) -> rel.
 
 

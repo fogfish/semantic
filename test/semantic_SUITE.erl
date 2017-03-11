@@ -82,7 +82,7 @@ end_per_group(_, _Config) ->
 -define(RDF_PROPERTY, {iri, <<"rdf">>, <<"Property">>}).
 -define(RDF_LANG_STRING, {iri, <<"rdf">>, <<"langString">>}).
 -define(XSD_STRING,   {iri, <<"xsd">>, <<"string">>}).
--define(LANG_EN,      {iri, <<"lang">>, <<"en">>}).
+-define(LANG_EN,      {iri, <<"langString">>, <<"en">>}).
 
 
 define_uri(_Config) ->

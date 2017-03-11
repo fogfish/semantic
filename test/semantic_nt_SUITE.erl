@@ -125,7 +125,7 @@ spo_with_lang(_) ->
       [{
          {iri, <<"http://example.org/a">>}, 
          {iri, <<"http://example.org/b">>}, 
-         {{iri, <<"lang">>, <<"en">>}, <<"c">>}
+         {{iri, <<"langString">>, <<"en">>}, <<"c">>}
       }],
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  

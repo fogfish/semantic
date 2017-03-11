@@ -109,7 +109,7 @@ spo_with_lang_string(_Config) ->
       s := {iri, <<"http://example.org/a">>},
       p := {iri, <<"foaf">>, <<"name">>},
       o := <<"text">>,
-      type := {iri, <<"lang">>, <<"en">>}
+      type := {iri, <<"langString">>, <<"en">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    <<"en">> = semantic:typeof(T).
 

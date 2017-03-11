@@ -25,6 +25,8 @@
 -define(OWL,  <<"owl">>).
 -define(XSD,  <<"xsd">>).
 
+-define(LANG, <<"langString">>).
+
 %% rdfs schema
 -define(RDF_TYPE,        {iri, ?RDF, <<"type">>}).
 -define(RDF_DATATYPE,    {iri, ?RDF, <<"datatype">>}).
@@ -39,6 +41,7 @@
 %% built-int predicates
 -define(RDF_ID,          {iri, ?RDF, <<"id">>}).
 
+-define(IRI_LANG(X),     {iri, ?LANG, X}).
 %%%------------------------------------------------------------------
 %%%
 %%% semantic data types (built in)
@@ -81,8 +84,6 @@
 -define(GEORSS_POINT,    {iri, <<"georss">>, <<"point">>}).
 -define(GEORSS_HASH,     {iri, <<"georss">>, <<"hash">>}).
 
-%%
--define(LANG,    <<"lang">>).
 
 
 %%
