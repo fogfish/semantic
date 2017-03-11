@@ -30,6 +30,7 @@
 start(_Type, _Args) ->
    schema(),
    config(),
+   define(),
    {ok, self()}. 
 
 %%
@@ -38,7 +39,7 @@ stop(_State) ->
    ok.
 
 %%
-%%
+%% configure system prefixes
 config() ->
    Default = filename:join([code:priv_dir(semantic), "prefixes.nt"]),
    prefixes( opts:val(prefixes, Default, semantic) ).   
@@ -70,4 +71,7 @@ schema() ->
      ,{read_concurrency,  true}
    ]).
 
-
+%%
+%% define built-in predicates
+define() ->
+   true = semantic:create(semantic:p(?RDF_ID, ?XSD_ANYURI, true, true)).

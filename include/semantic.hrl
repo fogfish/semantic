@@ -36,6 +36,9 @@
 -define(OWL_SINGLE,      {iri, ?OWL, <<"FunctionalProperty">>}).
 -define(OWL_UNIQUE,      {iri, ?OWL, <<"InverseFunctionalProperty">>}).
 
+%% built-int predicates
+-define(RDF_ID,          {iri, ?RDF, <<"id">>}).
+
 %%%------------------------------------------------------------------
 %%%
 %%% semantic data types (built in)

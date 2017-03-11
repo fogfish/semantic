@@ -29,6 +29,7 @@
    typeof/1,
    p/1,
    p/2,
+   p/4,
    seq/2,
    deduct/1,
    schema/1,
@@ -160,12 +161,16 @@ typeof(Fact) ->
 %% define new predicate
 -spec p(#rdf_property{}) -> #rdf_property{}.
 -spec p(semantic:iri(), semantic:iri()) -> #rdf_property{}. 
+-spec p(semantic:iri(), semantic:iri(), boolean(), boolean()) -> #rdf_property{}. 
 
 p(Spec) ->
    semantic_schema:property(Spec).
 
 p(P, DataType) ->
    semantic_schema:property(P, DataType).
+
+p(P, DataType, Single, Unique) ->
+   semantic_schema:property(#rdf_property{id = P, datatype = DataType, single = Single, unique = Unique}).
 
 
 %%
