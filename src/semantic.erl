@@ -30,7 +30,7 @@
    p/1,
    p/2,
    p/4,
-   seq/2,
+   seq/3,
    deduct/1,
    schema/1,
    create/1,
@@ -175,12 +175,14 @@ p(P, DataType, Single, Unique) ->
 
 %%
 %% define new seq
--spec seq(semantic:iri(), [semantic:iri()]) -> #rdf_seq{}.
+-spec seq(semantic:iri(), semantic:iri(), [semantic:iri()]) -> #rdf_seq{}.
 
-seq(IRI, Properties) ->
+seq(IRI, SubClass, Properties) ->
    {iri, _, _} = Seq = semantic:compact(IRI),
+   {iri, _, _} = Sub = semantic:compact(SubClass),
    #rdf_seq{
-      id  = Seq,
+      id       = Seq,
+      subclass = Sub,
       seq = [lookup(X) || X <- Properties]
    }.
 
