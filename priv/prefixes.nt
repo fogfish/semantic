@@ -186,7 +186,7 @@ _:rdfa	_:rdfs:domain	<http://www.w3.org/ns/rdfa#> .
 _:rdfdf	_:rdfs:domain	<http://www.openlinksw.com/virtrdf-data-formats#> .
 _:rdfs	_:rdfs:domain	<http://www.w3.org/2000/01/rdf-schema#> .
 _:rev	_:rdfs:domain	<http://purl.org/stuff/rev#> .
-_:review	_:rdfs:domain	<http:/www.purl.org/stuff/rev#> .
+_:review	_:rdfs:domain	<http://www.purl.org/stuff/rev#> .
 _:rss	_:rdfs:domain	<http://purl.org/rss/1.0/> .
 _:sc	_:rdfs:domain	<http://purl.org/science/owl/sciencecommons/> .
 _:schema	_:rdfs:domain	<http://schema.org/> .
