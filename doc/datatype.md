@@ -3,7 +3,7 @@
 
 ## Primitive Data Types
 
-The knowledge statements contains a scalar objects -- literals. Literals are either language-tagged string `rdf:langString` or _type-safe_ values `xsd:string` containing a reference to data-type. This section defines data-types supported by the library, its mapping to Erlang native types and relation to existed schema(s) and ontologies.  
+Knowledge statements contain scalar objects -- literals. Literals are either language-tagged string `rdf:langString` or _type-safe_ values containing a reference to data-type (e.g. `xsd:string`). This section defines data-types supported by the library, its mapping to Erlang native types and relation to existed schema(s) and ontologies.  
 
 
 ### binary
