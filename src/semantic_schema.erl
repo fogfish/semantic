@@ -14,7 +14,10 @@
 %%   limitations under the License.
 %%
 -module(semantic_schema).
+
 -include("semantic.hrl").
+-include_lib("datum/include/datum.hrl").
+
 
 -export([
    deduct/1,
@@ -28,7 +31,7 @@
 %% deduct schema of knowledge statements
 -spec deduct(semantic:heap(semantic:spock())) -> semantic:heap(#rdf_property{}).
 
-deduct({s, _, _} = Stream) ->
+deduct(#stream{} = Stream) ->
    gb_sets:to_list(
       stream:fold(fun deduct/2, gb_sets:new(), Stream)
    );

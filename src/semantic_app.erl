@@ -19,6 +19,8 @@
 -behaviour(application).
 
 -include("semantic.hrl").
+-include_lib("datum/include/datum.hrl").
+
 
 -export([
    start/2
@@ -51,13 +53,13 @@ prefixes(File) ->
       )
    ).
 
-prefixes(Enc, Dec, {s, _, _} = Kns) ->
-   prefixes(Enc, Dec, stream:list(Kns));
+prefixes(Enc, Dec, #stream{} = KnowledgeNS) ->
+   prefixes(Enc, Dec, stream:list(KnowledgeNS));
 
-prefixes(Enc, Dec, Kns)
- when is_list(Kns) ->
-   {module, Enc} = semantic_ns:encoder(Enc, Kns),
-   {module, Dec} = semantic_ns:decoder(Dec, Kns),
+prefixes(Enc, Dec, KnowledgeNS)
+ when is_list(KnowledgeNS) ->
+   {module, Enc} = semantic_ns:encoder(Enc, KnowledgeNS),
+   {module, Dec} = semantic_ns:decoder(Dec, KnowledgeNS),
    ok.
 
 %%

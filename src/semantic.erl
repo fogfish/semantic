@@ -19,6 +19,7 @@
 -module(semantic).
 
 -include("semantic.hrl").
+-include_lib("datum/include/datum.hrl").
 -compile({parse_transform, category}).
 
 -export([start/0]).
@@ -231,7 +232,7 @@ lookup(IRI) ->
 %% build stream of knowledge statements from n-triples.
 -spec nt(datum:stream() | list()) -> datum:stream().
 
-nt({s, _, _} = Stream) ->
+nt(#stream{} = Stream) ->
    semantic_nt:decode(Stream);
 
 nt(File)

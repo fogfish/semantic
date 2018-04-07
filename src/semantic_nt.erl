@@ -41,7 +41,9 @@
 %%
 %%
 -module(semantic_nt).
+
 -include("semantic.hrl").
+-include_lib("datum/include/datum.hrl").
 
 -export([
    new/0
@@ -73,10 +75,10 @@ new() ->
 %% stream decoder
 -spec decode(datum:stream()) -> datum:stream().
 
-decode({s, _, _} = Stream) ->
+decode(#stream{} = Stream) ->
    istream(Stream, new()).
 
-istream({},    _State) ->
+istream(?stream(),    _State) ->
    stream:new();
 istream(Stream, State) ->
    istream(stream:head(Stream), Stream, State).
@@ -95,10 +97,10 @@ istream([Head|Tail], Stream, State) ->
 %% stream encoder
 -spec encode(datum:stream()) -> datum:stream().
 
-encode({s, _, _} = Stream) ->
+encode(#stream{} = Stream) ->
    ostream(Stream, new()).
 
-ostream({},    _State) ->
+ostream(?stream(),    _State) ->
    stream:new();
 ostream(Stream, State) ->
    ostream(stream:head(Stream), Stream, State).
