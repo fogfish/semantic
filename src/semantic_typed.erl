@@ -76,7 +76,7 @@ compile({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
       p => get_or_else(semantic:compact(P), P),
       o => get_or_else(semantic:compact(O), O),
       c => 1.0,
-      k => uid:l()
+      k => uid:encode64( uid:l() )
    };
 
 compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
@@ -85,7 +85,7 @@ compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
       p => get_or_else(semantic:compact(P), P),
       o => O,
       c => 1.0,
-      k => uid:l(),
+      k => uid:encode64( uid:l() ),
       type => Type
    };
 
@@ -95,7 +95,7 @@ compile({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
          s => get_or_else(semantic:compact(S), S),
          p => get_or_else(semantic:compact(P), P),
          c => 1.0,
-         k => uid:l()
+         k => uid:encode64( uid:l() )
       }
    );
 
@@ -105,7 +105,7 @@ compile({{iri, _} = S, {iri, _} = P, O}) ->
          s => get_or_else(semantic:compact(S), S),
          p => get_or_else(semantic:compact(P), P),
          c => 1.0,
-         k => uid:l()
+         k => uid:encode64( uid:l() )
       }
    ).
 
