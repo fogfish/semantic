@@ -76,7 +76,8 @@ compile({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
       p => get_or_else(semantic:compact(P), P),
       o => get_or_else(semantic:compact(O), O),
       c => 1.0,
-      k => uid:encode64( uid:l() )
+      k => uid:encode64( uid:l() ),
+      type => ?XSD_ANYURI
    };
 
 compile({{iri, _} = S, {iri, _} = P, {{iri, ?LANG, _} = Type, O}}) ->
