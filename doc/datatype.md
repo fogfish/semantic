@@ -24,10 +24,10 @@ Lang | Data type
 ---  | ---
 Erlang | `-type integer().`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#integer"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#long"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#int"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#short"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#byte"
+   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#long"
+   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#int"
+   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#short"
+   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#byte"
 
 
 
