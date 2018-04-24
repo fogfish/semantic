@@ -23,16 +23,16 @@
 
 
 -export([
-   start/2
-  ,stop/1
+   start/2,
+   stop/1
 ]).
 
 %%
 %%
 start(_Type, _Args) ->
-   schema(),
+   % schema(),
    config(),
-   define(),
+   % define(),
    {ok, self()}. 
 
 %%
@@ -64,16 +64,16 @@ prefixes(Enc, Dec, KnowledgeNS)
 
 %%
 %% schema table
-schema() ->
-   _  = ets:new(semantic, [
-      public
-     ,named_table
-     ,set
-     ,{keypos, #rdf_property.id}
-     ,{read_concurrency,  true}
-   ]).
+% schema() ->
+%    _  = ets:new(semantic, [
+%       public
+%      ,named_table
+%      ,set
+%      ,{keypos, #rdf_property.id}
+%      ,{read_concurrency,  true}
+%    ]).
 
-%%
-%% define built-in predicates
-define() ->
-   true = semantic:create(semantic:p(?RDF_ID, ?XSD_ANYURI, true, true)).
+% %%
+% %% define built-in predicates
+% define() ->
+%    true = semantic:create(semantic:p(?RDF_ID, ?XSD_ANYURI, true, true)).

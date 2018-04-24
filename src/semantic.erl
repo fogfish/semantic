@@ -28,16 +28,10 @@
    absolute/1,
    typed/1,
    typeof/1,
-   p/1,
-   p/2,
-   p/4,
-   seq/3,
    deduct/1,
-   schema/1,
-   create/1,
-   lookup/1,
    nt/1,
-   jsonld/1
+   jsonld/1,
+   fold/1
 ]).
 
 
@@ -142,6 +136,7 @@ absolute({iri, Prefix, Suffix}) ->
 absolute(IRI) ->
    {iri, scalar:s(IRI)}.
 
+
 %%
 %% compiles knowledge statement into type-safe format
 -spec typed( heap(spo()) ) -> heap(spock()).     
@@ -159,73 +154,11 @@ typeof(Fact) ->
 
 
 %%
-%% define new predicate
--spec p(#rdf_property{}) -> #rdf_property{}.
--spec p(semantic:iri(), semantic:iri()) -> #rdf_property{}. 
--spec p(semantic:iri(), semantic:iri(), boolean(), boolean()) -> #rdf_property{}. 
-
-p(Spec) ->
-   semantic_schema:property(Spec).
-
-p(P, DataType) ->
-   semantic_schema:property(P, DataType).
-
-p(P, DataType, Single, Unique) ->
-   semantic_schema:property(#rdf_property{id = P, datatype = DataType, single = Single, unique = Unique}).
-
-
-%%
-%% define new seq
--spec seq(semantic:iri(), semantic:iri(), [semantic:iri()]) -> #rdf_seq{}.
-
-seq(IRI, SubClass, Properties) ->
-   {iri, _, _} = Seq = semantic:compact(IRI),
-   {iri, _, _} = Sub = semantic:compact(SubClass),
-   #rdf_seq{
-      id       = Seq,
-      subclass = Sub,
-      seq = [lookup(X) || X <- Properties]
-   }.
-
-%%
 %% deduct schema of knowledge statements using actual knowledge statements
--spec deduct( heap(spock()) ) -> heap(#rdf_property{}).
+-spec deduct( heap(spock()) ) -> heap(_).
 
 deduct(Facts) ->
    semantic_schema:deduct(Facts).
-
-%%
-%% define new property
--spec schema(#rdf_property{}) -> [spock()].
-
-schema(P) ->
-   semantic_schema:define(P).
-
-%%
-%%
--spec create(#rdf_property{} | #rdf_seq{}) -> true | false.
-
-create(#rdf_property{} = Property) ->
-   ets:insert_new(semantic, Property);
-
-create(#rdf_seq{} = Seq) ->
-   ets:insert_new(semantic, Seq).
-
-
--spec lookup(iri()) -> undefined | #rdf_property{}.
-
-lookup({iri, _, _} = IRI) ->
-   case ets:lookup(semantic, IRI) of
-      [#rdf_property{} = Property] ->
-         Property;
-      [#rdf_seq{} = Seq] ->
-         Seq;
-      _ ->
-         undefined
-   end;
-
-lookup(IRI) ->
-   [$? || compact(IRI), lookup(_)]. 
 
 
 %%
@@ -252,4 +185,29 @@ nt(Blob)
 
 jsonld(JsonLD) ->
    semantic_jsonld:decode(JsonLD).
+
+%%
+%%
+-spec fold(datum:stream()) -> datum:stream().
+
+fold(#stream{} = Stream) ->
+   stream:unfold(fun foldp/1, Stream).
+
+foldp(Stream) ->
+   foldp(stream:head(Stream), Stream).
+
+foldp(_, ?stream()) ->
+   stream:new();
+
+foldp(#{s := S, p := P, type := Type} = Spock, Stream) ->
+   {Head, Tail} = stream:splitwhile(
+      fun(#{s := Sx, p := Px, type := TypeX}) ->
+         S =:= Sx andalso P =:= Px andalso Type =:= TypeX  
+      end,
+      Stream
+   ),
+   {Spock#{o => [X || #{o := X} <- stream:list(Head)]}, Tail}.
+
+
+
 
