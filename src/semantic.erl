@@ -202,11 +202,16 @@ foldp(_, ?stream()) ->
 foldp(#{s := S, p := P, type := Type} = Spock, Stream) ->
    {Head, Tail} = stream:splitwhile(
       fun(#{s := Sx, p := Px, type := TypeX}) ->
-         S =:= Sx andalso P =:= Px andalso Type =:= TypeX  
+         S =:= Sx andalso P =:= Px andalso Type =:= TypeX
       end,
       Stream
    ),
-   {Spock#{o => [X || #{o := X} <- stream:list(Head)]}, Tail}.
+   case [X || #{o := X} <- stream:list(Head)] of
+      [O] ->
+         {Spock#{o =>   O}, Tail};
+      Set ->
+         {Spock#{o => Set}, Tail}
+   end.
 
 
 
