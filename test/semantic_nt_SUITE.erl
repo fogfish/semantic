@@ -16,19 +16,7 @@
 -module(semantic_nt_SUITE).
 -include_lib("common_test/include/ct.hrl").
 
-%%
-%% common test
--export([
-   all/0
-  ,groups/0
-  ,init_per_suite/1
-  ,end_per_suite/1
-  ,init_per_group/2
-  ,end_per_group/2
-]).
-
-%%
-%% unit tests
+-export([all/0]).
 -export([
    spo_with_uri/1,
    spo_with_blanknodes/1,
@@ -40,42 +28,17 @@
    spo_stream/1
 ]).
 
-%%%----------------------------------------------------------------------------   
-%%%
-%%% suite
-%%%
-%%%----------------------------------------------------------------------------   
 all() ->
    [
-      {group, decode}
+      spo_with_uri,
+      spo_with_blanknodes,
+      spo_with_lit,
+      spo_with_lang,
+      spo_with_type,
+      spo_chunked_input,
+      spo_with_comment,
+      spo_stream
    ].
-
-groups() ->
-   [
-      {decode, [parallel], 
-         [spo_with_uri, spo_with_blanknodes, spo_with_lit, spo_with_lang, spo_with_type,
-          spo_chunked_input, spo_with_comment, spo_stream]}
-   ].
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
-init_per_suite(Config) ->
-   Config.
-
-end_per_suite(_Config) ->
-   ok.
-
-%% 
-%%
-init_per_group(_, Config) ->
-   Config.
-
-end_per_group(_, _Config) ->
-   ok.
-
 
 %%%----------------------------------------------------------------------------   
 %%%
