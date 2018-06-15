@@ -242,3 +242,4 @@ _:yt	_:rdfs:domain	<http://gdata.youtube.com/schemas/2007> .
 _:zem	_:rdfs:domain	<http://s.zemanta.com/ns#> .
 
 _:fbase _:rdfs:domain <http://rdf.freebase.com/key/> .
+_:langString _:rdfs:domain <urn:iso:3166-2:> .
