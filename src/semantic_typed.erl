@@ -100,6 +100,16 @@ compile({{iri, _} = S, {iri, _} = P, {{iri, _} = Type, O}}) ->
       }
    );
 
+compile({{iri, _} = S, {iri, _} = P, {{iri, _, _} = Type, O}}) ->
+   decode(Type, O,
+      #{
+         s => get_or_else(semantic:compact(S), S),
+         p => get_or_else(semantic:compact(P), P),
+         c => 1.0,
+         k => uid:encode64( uid:l() )
+      }
+   );
+
 compile({{iri, _} = S, {iri, _} = P, O}) ->
    decode(O,
       #{

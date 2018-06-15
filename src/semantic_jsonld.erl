@@ -23,7 +23,10 @@
 %%
 %% 
 decode(#{<<"@context">> := Context, <<"@id">> := Node} = JsonLD) -> 
-   decode(Context, Node, maps:without([<<"@context">>, <<"@id">>], JsonLD)).
+   decode(Context, semantic:absolute(Node), maps:without([<<"@context">>, <<"@id">>], JsonLD));
+
+decode(#{<<"@id">> := Node} = JsonLD) ->
+   decode(#{}, semantic:absolute(Node), maps:without([<<"@id">>], JsonLD)).
 
 decode(Context, Node, JsonLD) ->
    lists:flatten(
@@ -45,14 +48,17 @@ spo(S, P, Type, O)
       lists:zip(Type, O) 
    );
 
-spo(S, P, rel, O) ->
-   {{iri, S}, {iri, P}, {iri, O}};
-
-spo(S, P, undefined, O) ->
-   {{iri, S}, {iri, P}, O};
-
 spo(S, P, Type, O) ->
-   {{iri, S}, {iri, P}, {Type, O}}.
+   {S, P, {Type, O}}.
+
+% spo(S, P, rel, O) ->
+%    {{iri, S}, {iri, P}, {iri, O}};
+
+% spo(S, P, undefined, O) ->
+%    {{iri, S}, {iri, P}, O};
+
+% spo(S, P, Type, O) ->
+%    {{iri, S}, {iri, P}, {Type, O}}.
 
 %%%------------------------------------------------------------------
 %%%
@@ -62,22 +68,23 @@ spo(S, P, Type, O) ->
 
 %%
 %%
-%% @todo: prefix expansion
 context(Key, Context) ->
    case Context of
       % context term definition 
       #{Key := Uri} when is_binary(Uri) ->
-         Uri;
+         semantic:absolute(Uri);
 
       % expanded term definition
       #{Key := #{<<"@id">> := Uri}} ->
-         Uri;
+         semantic:absolute(Uri);
 
       % key is not defined at context
       _ ->
-         Key
+         semantic:absolute(Key)
    end.
 
+%%
+%%
 typeof(Key, Val, Context)
  when is_list(Val) ->
    lists:map(
@@ -89,14 +96,15 @@ typeof(Key, Val, Context) ->
    case Context of
       % expanded term definition
       #{Key := #{<<"@type">> := <<"@id">>}} ->
-         rel;
-
-      #{Key := #{<<"@type">> := <<"_:", Type/binary>>}} ->
-         [Prefix, Suffix] = binary:split(Type, <<$:>>),
-         semantic:absolute({iri, Prefix, Suffix});
+         ?XSD_ANYURI;
 
       #{Key := #{<<"@type">> := Type}} ->
-         {iri, Type};
+         case binary:split(Type, <<"://">>) of
+            [_, _] ->
+               semantic:absolute(Type);
+            [_] ->
+               semantic:compact(Type)
+         end;
 
       % key is not defined at context
       _ ->
@@ -104,20 +112,8 @@ typeof(Key, Val, Context) ->
    end.
 
 
-typeof(Val)
- when is_binary(Val) -> 
-   {iri, <<"http://www.w3.org/2001/XMLSchema#string">>};
-
-typeof(Val)
- when is_integer(Val) -> 
-   {iri, <<"http://www.w3.org/2001/XMLSchema#integer">>};
-
-typeof(Val)
- when is_float(Val) -> 
-   {iri, <<"http://www.w3.org/2001/XMLSchema#double">>};
-
-typeof(true) ->
-   {iri, <<"http://www.w3.org/2001/XMLSchema#boolean">>};
-
-typeof(false)  -> 
-   {iri, <<"http://www.w3.org/2001/XMLSchema#boolean">>}.
+typeof(Val) when is_binary(Val) -> ?XSD_STRING;
+typeof(Val) when is_integer(Val) -> ?XSD_INTEGER; 
+typeof(Val) when is_float(Val) -> ?XSD_DOUBLE;
+typeof(true) -> ?XSD_BOOLEAN;
+typeof(false) -> ?XSD_BOOLEAN. 
