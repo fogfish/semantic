@@ -113,11 +113,16 @@ compact({iri,  Uri}) ->
          {iri, Prefix, Suffix}
    end;
 compact(IRI) ->
-   case binary:split(scalar:s(IRI), <<$:>>) of
-      [Prefix, Suffix] -> 
-         {iri, Prefix, Suffix};
+   case binary:split(scalar:s(IRI), <<"://">>) of
+      [_, _] -> 
+         compact({iri, IRI});
       _ ->
-         undefined
+         case binary:split(scalar:s(IRI), <<$:>>) of
+            [Prefix, Suffix] ->
+               {iri, Prefix, Suffix};
+            _ ->
+               undefined
+         end
    end.
 
 %%
