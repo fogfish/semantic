@@ -1,66 +1,492 @@
-%%
-%%   Copyright 2012 - 2014 Dmitry Kolesnikov, All Rights Reserved
-%%
-%%   Licensed under the Apache License, Version 2.0 (the "License");
-%%   you may not use this file except in compliance with the License.
-%%   You may obtain a copy of the License at
-%%
-%%       http://www.apache.org/licenses/LICENSE-2.0
-%%
-%%   Unless required by applicable law or agreed to in writing, software
-%%   distributed under the License is distributed on an "AS IS" BASIS,
-%%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-%%   See the License for the specific language governing permissions and
-%%   limitations under the License.
-%%
 %% @doc
-%%   uri namespace prefixes compiler
+%%   generated from prefixes.nt
 -module(semantic_ns).
 
--export([
-   encoder/2, 
-   encode/3, 
-   decoder/2, 
-   decode/3
-]).
+-export([decode/1, encode/1]).
 
-%%
-%% build prefix encoder
-%%   http://www.w3.org/2001/XMLSchema#integer -> xsd:integer
-encoder(Id, Kns)
- when is_atom(Id), is_list(Kns) ->
-   hornlog:c(Id, [encoder(X) || X <- extend(Kns)]).
+decode(<<"http://www.w3.org/2005/Atom", Suffix/binary>>) -> {<<"a">>, Suffix};
+decode(<<"http://schemas.talis.com/2005/address/schema#", Suffix/binary>>) -> {<<"address">>, Suffix};
+decode(<<"http://webns.net/mvcb/", Suffix/binary>>) -> {<<"admin">>, Suffix};
+decode(<<"http://atomowl.org/ontologies/atomrdf#", Suffix/binary>>) -> {<<"atom">>, Suffix};
+decode(<<"http://soap.amazon.com/", Suffix/binary>>) -> {<<"aws">>, Suffix};
+decode(<<"http://b3s.openlinksw.com/", Suffix/binary>>) -> {<<"b3s">>, Suffix};
+decode(<<"http://schemas.google.com/gdata/batch", Suffix/binary>>) -> {<<"batch">>, Suffix};
+decode(<<"http://purl.org/ontology/bibo/", Suffix/binary>>) -> {<<"bibo">>, Suffix};
+decode(<<"bif:", Suffix/binary>>) -> {<<"bif">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/bugzilla#", Suffix/binary>>) -> {<<"bugzilla">>, Suffix};
+decode(<<"http://www.w3.org/2002/12/cal/icaltzd#", Suffix/binary>>) -> {<<"c">>, Suffix};
+decode(<<"http://www.openlinksw.com/campsites/schema#", Suffix/binary>>) -> {<<"campsite">>, Suffix};
+decode(<<"http://dbpedia.org/resource/template:", Suffix/binary>>) -> {<<"category-en">>, Suffix};
+decode(<<"http://www.crunchbase.com/", Suffix/binary>>) -> {<<"cb">>, Suffix};
+decode(<<"http://web.resource.org/cc/", Suffix/binary>>) -> {<<"cc">>, Suffix};
+decode(<<"http://purl.org/rss/1.0/modules/content/", Suffix/binary>>) -> {<<"content">>, Suffix};
+decode(<<"http://purl.org/captsolo/resume-rdf/0.2/cv#", Suffix/binary>>) -> {<<"cv">>, Suffix};
+decode(<<"http://purl.org/captsolo/resume-rdf/0.2/base#", Suffix/binary>>) -> {<<"cvbase">>, Suffix};
+decode(<<"http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#", Suffix/binary>>) -> {<<"dawgt">>, Suffix};
+decode(<<"http://dbpedia.org/resource/Category:", Suffix/binary>>) -> {<<"dbc">>, Suffix};
+decode(<<"http://dbpedia.org/ontology/", Suffix/binary>>) -> {<<"dbo">>, Suffix};
+decode(<<"http://dbpedia.org/property/", Suffix/binary>>) -> {<<"dbp">>, Suffix};
+decode(<<"http://af.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-af">>, Suffix};
+decode(<<"http://als.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-als">>, Suffix};
+decode(<<"http://an.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-an">>, Suffix};
+decode(<<"http://ar.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ar">>, Suffix};
+decode(<<"http://az.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-az">>, Suffix};
+decode(<<"http://bar.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-bar">>, Suffix};
+decode(<<"http://be.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-be">>, Suffix};
+decode(<<"http://be-x-old.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-be-x-old">>, Suffix};
+decode(<<"http://bg.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-bg">>, Suffix};
+decode(<<"http://br.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-br">>, Suffix};
+decode(<<"http://ca.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ca">>, Suffix};
+decode(<<"http://commons.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-commons">>, Suffix};
+decode(<<"http://cs.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-cs">>, Suffix};
+decode(<<"http://cy.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-cy">>, Suffix};
+decode(<<"http://da.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-da">>, Suffix};
+decode(<<"http://de.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-de">>, Suffix};
+decode(<<"http://dsb.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-dsb">>, Suffix};
+decode(<<"http://el.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-el">>, Suffix};
+decode(<<"http://eo.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-eo">>, Suffix};
+decode(<<"http://es.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-es">>, Suffix};
+decode(<<"http://et.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-et">>, Suffix};
+decode(<<"http://eu.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-eu">>, Suffix};
+decode(<<"http://fa.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-fa">>, Suffix};
+decode(<<"http://fi.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-fi">>, Suffix};
+decode(<<"http://fr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-fr">>, Suffix};
+decode(<<"http://frr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-frr">>, Suffix};
+decode(<<"http://fy.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-fy">>, Suffix};
+decode(<<"http://ga.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ga">>, Suffix};
+decode(<<"http://gd.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-gd">>, Suffix};
+decode(<<"http://gl.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-gl">>, Suffix};
+decode(<<"http://he.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-he">>, Suffix};
+decode(<<"http://hr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-hr">>, Suffix};
+decode(<<"http://hsb.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-hsb">>, Suffix};
+decode(<<"http://hu.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-hu">>, Suffix};
+decode(<<"http://id.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-id">>, Suffix};
+decode(<<"http://ie.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ie">>, Suffix};
+decode(<<"http://io.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-io">>, Suffix};
+decode(<<"http://is.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-is">>, Suffix};
+decode(<<"http://it.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-it">>, Suffix};
+decode(<<"http://ja.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ja">>, Suffix};
+decode(<<"http://ka.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ka">>, Suffix};
+decode(<<"http://kk.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-kk">>, Suffix};
+decode(<<"http://ko.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ko">>, Suffix};
+decode(<<"http://ku.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ku">>, Suffix};
+decode(<<"http://la.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-la">>, Suffix};
+decode(<<"http://lb.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-lb">>, Suffix};
+decode(<<"http://lmo.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-lmo">>, Suffix};
+decode(<<"http://lt.dbpedia.org/resource/as", Suffix/binary>>) -> {<<"dbpedia-lt">>, Suffix};
+decode(<<"http://lv.dbpedia.org/resource/a", Suffix/binary>>) -> {<<"dbpedia-lv">>, Suffix};
+decode(<<"http://mk.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-mk">>, Suffix};
+decode(<<"http://mr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-mr">>, Suffix};
+decode(<<"http://ms.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ms">>, Suffix};
+decode(<<"http://nah.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-nah">>, Suffix};
+decode(<<"http://nds.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-nds">>, Suffix};
+decode(<<"http://nl.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-nl">>, Suffix};
+decode(<<"http://nn.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-nn">>, Suffix};
+decode(<<"http://no.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-no">>, Suffix};
+decode(<<"http://nov.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-nov">>, Suffix};
+decode(<<"http://oc.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-oc">>, Suffix};
+decode(<<"http://os.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-os">>, Suffix};
+decode(<<"http://pam.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-pam">>, Suffix};
+decode(<<"http://pl.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-pl">>, Suffix};
+decode(<<"http://pms.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-pms">>, Suffix};
+decode(<<"http://pnb.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-pnb">>, Suffix};
+decode(<<"http://pt.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-pt">>, Suffix};
+decode(<<"http://ro.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ro">>, Suffix};
+decode(<<"http://ru.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ru">>, Suffix};
+decode(<<"http://sh.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sh">>, Suffix};
+decode(<<"http://simple.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-simple">>, Suffix};
+decode(<<"http://sk.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sk">>, Suffix};
+decode(<<"http://sl.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sl">>, Suffix};
+decode(<<"http://sq.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sq">>, Suffix};
+decode(<<"http://sr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sr">>, Suffix};
+decode(<<"http://sv.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sv">>, Suffix};
+decode(<<"http://sw.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-sw">>, Suffix};
+decode(<<"http://th.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-th">>, Suffix};
+decode(<<"http://tr.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-tr">>, Suffix};
+decode(<<"http://ug.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-ug">>, Suffix};
+decode(<<"http://uk.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-uk">>, Suffix};
+decode(<<"http://vi.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-vi">>, Suffix};
+decode(<<"http://vo.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-vo">>, Suffix};
+decode(<<"http://war.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-war">>, Suffix};
+decode(<<"http://dbpedia.openlinksw.com/wikicompany/", Suffix/binary>>) -> {<<"dbpedia-wikicompany">>, Suffix};
+decode(<<"http://wikidata.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-wikidata">>, Suffix};
+decode(<<"http://yo.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-yo">>, Suffix};
+decode(<<"http://zh.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-zh">>, Suffix};
+decode(<<"http://zh-min-nan.dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbpedia-zh-min-nan">>, Suffix};
+decode(<<"http://dbpedia.org/resource/", Suffix/binary>>) -> {<<"dbr">>, Suffix};
+decode(<<"http://dbpedia.org/resource/Template:", Suffix/binary>>) -> {<<"dbt">>, Suffix};
+decode(<<"http://purl.org/dc/elements/1.1/", Suffix/binary>>) -> {<<"dc">>, Suffix};
+decode(<<"http://purl.org/dc/terms/", Suffix/binary>>) -> {<<"dct">>, Suffix};
+decode(<<"http://digg.com/docs/diggrss/", Suffix/binary>>) -> {<<"digg">>, Suffix};
+decode(<<"http://www.ontologydesignpatterns.org/ont/dul/DUL.owl", Suffix/binary>>) -> {<<"dul">>, Suffix};
+decode(<<"urn:ebay:apis:eBLBaseComponents", Suffix/binary>>) -> {<<"ebay">>, Suffix};
+decode(<<"http://purl.oclc.org/net/rss_2.0/enc#", Suffix/binary>>) -> {<<"enc">>, Suffix};
+decode(<<"http://www.w3.org/2003/12/exif/ns/", Suffix/binary>>) -> {<<"exif">>, Suffix};
+decode(<<"http://api.facebook.com/1.0/", Suffix/binary>>) -> {<<"fb">>, Suffix};
+decode(<<"http://api.friendfeed.com/2008/03", Suffix/binary>>) -> {<<"ff">>, Suffix};
+decode(<<"http://www.w3.org/2005/xpath-functions/#", Suffix/binary>>) -> {<<"fn">>, Suffix};
+decode(<<"http://xmlns.com/foaf/0.1/", Suffix/binary>>) -> {<<"foaf">>, Suffix};
+decode(<<"http://rdf.freebase.com/ns/", Suffix/binary>>) -> {<<"freebase">>, Suffix};
+decode(<<"http://base.google.com/ns/1.0", Suffix/binary>>) -> {<<"g">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/google-base#", Suffix/binary>>) -> {<<"gb">>, Suffix};
+decode(<<"http://schemas.google.com/g/2005", Suffix/binary>>) -> {<<"gd">>, Suffix};
+decode(<<"http://www.w3.org/2003/01/geo/wgs84_pos#", Suffix/binary>>) -> {<<"geo">>, Suffix};
+decode(<<"http://sws.geonames.org/", Suffix/binary>>) -> {<<"geodata">>, Suffix};
+decode(<<"http://www.geonames.org/ontology#", Suffix/binary>>) -> {<<"geonames">>, Suffix};
+decode(<<"http://www.georss.org/georss/", Suffix/binary>>) -> {<<"georss">>, Suffix};
+decode(<<"http://www.opengis.net/gml", Suffix/binary>>) -> {<<"gml">>, Suffix};
+decode(<<"http://purl.org/obo/owl/GO#", Suffix/binary>>) -> {<<"go">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/hlisting/", Suffix/binary>>) -> {<<"hlisting">>, Suffix};
+decode(<<"http://wwww.hoovers.com/", Suffix/binary>>) -> {<<"hoovers">>, Suffix};
+decode(<<"http://www.purl.org/stuff/hrev#", Suffix/binary>>) -> {<<"hrev">>, Suffix};
+decode(<<"http://www.w3.org/2002/12/cal/ical#", Suffix/binary>>) -> {<<"ical">>, Suffix};
+decode(<<"http://web-semantics.org/ns/image-regions", Suffix/binary>>) -> {<<"ir">>, Suffix};
+decode(<<"http://www.itunes.com/DTDs/Podcast-1.0.dtd", Suffix/binary>>) -> {<<"itunes">>, Suffix};
+decode(<<"http://www.w3.org/ns/ldp#", Suffix/binary>>) -> {<<"ldp">>, Suffix};
+decode(<<"http://linkedgeodata.org/triplify/", Suffix/binary>>) -> {<<"lgdt">>, Suffix};
+decode(<<"http://linkedgeodata.org/vocabulary#", Suffix/binary>>) -> {<<"lgv">>, Suffix};
+decode(<<"http://www.xbrl.org/2003/linkbase", Suffix/binary>>) -> {<<"link">>, Suffix};
+decode(<<"http://lod.openlinksw.com/", Suffix/binary>>) -> {<<"lod">>, Suffix};
+decode(<<"http://www.w3.org/2000/10/swap/math#", Suffix/binary>>) -> {<<"math">>, Suffix};
+decode(<<"http://search.yahoo.com/mrss/", Suffix/binary>>) -> {<<"media">>, Suffix};
+decode(<<"http://purl.org/commons/record/mesh/", Suffix/binary>>) -> {<<"mesh">>, Suffix};
+decode(<<"urn:oasis:names:tc:opendocument:xmlns:meta:1.0", Suffix/binary>>) -> {<<"meta">>, Suffix};
+decode(<<"http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#", Suffix/binary>>) -> {<<"mf">>, Suffix};
+decode(<<"http://musicbrainz.org/ns/mmd-1.0#", Suffix/binary>>) -> {<<"mmd">>, Suffix};
+decode(<<"http://purl.org/ontology/mo/", Suffix/binary>>) -> {<<"mo">>, Suffix};
+decode(<<"http://www.freebase.com/", Suffix/binary>>) -> {<<"mql">>, Suffix};
+decode(<<"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#", Suffix/binary>>) -> {<<"nci">>, Suffix};
+decode(<<"http://www.semanticdesktop.org/ontologies/nfo/#", Suffix/binary>>) -> {<<"nfo">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/ning#", Suffix/binary>>) -> {<<"ng">>, Suffix};
+decode(<<"http://data.nytimes.com/", Suffix/binary>>) -> {<<"nyt">>, Suffix};
+decode(<<"http://www.openarchives.org/OAI/2.0/", Suffix/binary>>) -> {<<"oai">>, Suffix};
+decode(<<"http://www.openarchives.org/OAI/2.0/oai_dc/", Suffix/binary>>) -> {<<"oai_dc">>, Suffix};
+decode(<<"http://www.geneontology.org/formats/oboInOwl#", Suffix/binary>>) -> {<<"obo">>, Suffix};
+decode(<<"urn:oasis:names:tc:opendocument:xmlns:office:1.0", Suffix/binary>>) -> {<<"office">>, Suffix};
+decode(<<"http://www.opengis.net/", Suffix/binary>>) -> {<<"ogc">>, Suffix};
+decode(<<"http://www.opengis.net/ont/gml#", Suffix/binary>>) -> {<<"ogcgml">>, Suffix};
+decode(<<"http://www.opengis.net/ont/geosparql#", Suffix/binary>>) -> {<<"ogcgs">>, Suffix};
+decode(<<"http://www.opengis.net/def/function/geosparql/", Suffix/binary>>) -> {<<"ogcgsf">>, Suffix};
+decode(<<"http://www.opengis.net/def/rule/geosparql/", Suffix/binary>>) -> {<<"ogcgsr">>, Suffix};
+decode(<<"http://www.opengis.net/ont/sf#", Suffix/binary>>) -> {<<"ogcsf">>, Suffix};
+decode(<<"urn:oasis:names:tc:opendocument:xmlns:meta:1.0:", Suffix/binary>>) -> {<<"oo">>, Suffix};
+decode(<<"http://a9.com/-/spec/opensearchrss/1.0/", Suffix/binary>>) -> {<<"openSearch">>, Suffix};
+decode(<<"http://sw.opencyc.org/concept/", Suffix/binary>>) -> {<<"opencyc">>, Suffix};
+decode(<<"http://www.openlinksw.com/schema/attribution#", Suffix/binary>>) -> {<<"opl">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/getsatisfaction/", Suffix/binary>>) -> {<<"opl-gs">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/meetup/", Suffix/binary>>) -> {<<"opl-meetup">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/xbrl/", Suffix/binary>>) -> {<<"opl-xbrl">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/oplweb#", Suffix/binary>>) -> {<<"oplweb">>, Suffix};
+decode(<<"http://www.openarchives.org/ore/terms/", Suffix/binary>>) -> {<<"ore">>, Suffix};
+decode(<<"http://www.w3.org/2002/07/owl#", Suffix/binary>>) -> {<<"owl">>, Suffix};
+decode(<<"http://www.buy.com/rss/module/productV2/", Suffix/binary>>) -> {<<"product">>, Suffix};
+decode(<<"http://purl.org/science/protein/bysequence/", Suffix/binary>>) -> {<<"protseq">>, Suffix};
+decode(<<"http://www.w3.org/ns/prov#", Suffix/binary>>) -> {<<"prov">>, Suffix};
+decode(<<"http://backend.userland.com/rss2", Suffix/binary>>) -> {<<"r">>, Suffix};
+decode(<<"http://www.radiopop.co.uk/", Suffix/binary>>) -> {<<"radio">>, Suffix};
+decode(<<"http://www.w3.org/1999/02/22-rdf-syntax-ns#", Suffix/binary>>) -> {<<"rdf">>, Suffix};
+decode(<<"http://www.w3.org/ns/rdfa#", Suffix/binary>>) -> {<<"rdfa">>, Suffix};
+decode(<<"http://www.openlinksw.com/virtrdf-data-formats#", Suffix/binary>>) -> {<<"rdfdf">>, Suffix};
+decode(<<"http://www.w3.org/2000/01/rdf-schema#", Suffix/binary>>) -> {<<"rdfs">>, Suffix};
+decode(<<"http://purl.org/stuff/rev#", Suffix/binary>>) -> {<<"rev">>, Suffix};
+decode(<<"http://www.purl.org/stuff/rev#", Suffix/binary>>) -> {<<"review">>, Suffix};
+decode(<<"http://purl.org/rss/1.0/", Suffix/binary>>) -> {<<"rss">>, Suffix};
+decode(<<"http://purl.org/science/owl/sciencecommons/", Suffix/binary>>) -> {<<"sc">>, Suffix};
+decode(<<"http://schema.org/", Suffix/binary>>) -> {<<"schema">>, Suffix};
+decode(<<"http://purl.org/NET/scovo#", Suffix/binary>>) -> {<<"scovo">>, Suffix};
+decode(<<"http://www.w3.org/ns/sparql-service-description#", Suffix/binary>>) -> {<<"sd">>, Suffix};
+decode(<<"urn:sobject.enterprise.soap.sforce.com", Suffix/binary>>) -> {<<"sf">>, Suffix};
+decode(<<"http://rdfs.org/sioc/ns#", Suffix/binary>>) -> {<<"sioc">>, Suffix};
+decode(<<"http://rdfs.org/sioc/types#", Suffix/binary>>) -> {<<"sioct">>, Suffix};
+decode(<<"http://www.openlinksw.com/ski_resorts/schema#", Suffix/binary>>) -> {<<"skiresort">>, Suffix};
+decode(<<"http://www.w3.org/2004/02/skos/core#", Suffix/binary>>) -> {<<"skos">>, Suffix};
+decode(<<"http://purl.org/rss/1.0/modules/slash/", Suffix/binary>>) -> {<<"slash">>, Suffix};
+decode(<<"sql:", Suffix/binary>>) -> {<<"sql">>, Suffix};
+decode(<<"http://xbrlontology.com/ontology/finance/stock_market#", Suffix/binary>>) -> {<<"stock">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/twfy#", Suffix/binary>>) -> {<<"twfy">>, Suffix};
+decode(<<"http://umbel.org/umbel#", Suffix/binary>>) -> {<<"umbel">>, Suffix};
+decode(<<"http://umbel.org/umbel/ac/", Suffix/binary>>) -> {<<"umbel-ac">>, Suffix};
+decode(<<"http://umbel.org/umbel/rc/", Suffix/binary>>) -> {<<"umbel-rc">>, Suffix};
+decode(<<"http://umbel.org/umbel/sc/", Suffix/binary>>) -> {<<"umbel-sc">>, Suffix};
+decode(<<"http://purl.uniprot.org/", Suffix/binary>>) -> {<<"uniprot">>, Suffix};
+decode(<<"http://dbpedia.org/units/", Suffix/binary>>) -> {<<"units">>, Suffix};
+decode(<<"http://www.rdfabout.com/rdf/schema/uscensus/details/100pct/", Suffix/binary>>) -> {<<"usc">>, Suffix};
+decode(<<"http://www.openlinksw.com/xsltext/", Suffix/binary>>) -> {<<"v">>, Suffix};
+decode(<<"http://www.w3.org/2001/vcard-rdf/3.0#", Suffix/binary>>) -> {<<"vcard">>, Suffix};
+decode(<<"http://www.w3.org/2006/vcard/ns#", Suffix/binary>>) -> {<<"vcard2006">>, Suffix};
+decode(<<"http://www.openlinksw.com/virtuoso/xslt/", Suffix/binary>>) -> {<<"vi">>, Suffix};
+decode(<<"http://www.openlinksw.com/virtuoso/xslt", Suffix/binary>>) -> {<<"virt">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/virtcxml#", Suffix/binary>>) -> {<<"virtcxml">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/virtpivot#", Suffix/binary>>) -> {<<"virtpivot">>, Suffix};
+decode(<<"http://www.openlinksw.com/schemas/virtrdf#", Suffix/binary>>) -> {<<"virtrdf">>, Suffix};
+decode(<<"http://rdfs.org/ns/void#", Suffix/binary>>) -> {<<"void">>, Suffix};
+decode(<<"http://www.worldbank.org/", Suffix/binary>>) -> {<<"wb">>, Suffix};
+decode(<<"http://www.w3.org/2007/05/powder-s#", Suffix/binary>>) -> {<<"wdrs">>, Suffix};
+decode(<<"http://www.w3.org/2005/01/wf/flow#", Suffix/binary>>) -> {<<"wf">>, Suffix};
+decode(<<"http://wellformedweb.org/CommentAPI/", Suffix/binary>>) -> {<<"wfw">>, Suffix};
+decode(<<"http://commons.wikimedia.org/wiki/", Suffix/binary>>) -> {<<"wiki-commons">>, Suffix};
+decode(<<"http://www.wikidata.org/entity/", Suffix/binary>>) -> {<<"wikidata">>, Suffix};
+decode(<<"http://en.wikipedia.org/wiki/", Suffix/binary>>) -> {<<"wikipedia-en">>, Suffix};
+decode(<<"http://www.w3.org/2004/07/xpath-functions", Suffix/binary>>) -> {<<"xf">>, Suffix};
+decode(<<"http://gmpg.org/xfn/11#", Suffix/binary>>) -> {<<"xfn">>, Suffix};
+decode(<<"http://www.w3.org/1999/xhtml", Suffix/binary>>) -> {<<"xhtml">>, Suffix};
+decode(<<"http://www.w3.org/1999/xhtml/vocab#", Suffix/binary>>) -> {<<"xhv">>, Suffix};
+decode(<<"http://www.xbrl.org/2003/instance", Suffix/binary>>) -> {<<"xi">>, Suffix};
+decode(<<"http://www.w3.org/XML/1998/namespace", Suffix/binary>>) -> {<<"xml">>, Suffix};
+decode(<<"http://www.ning.com/atom/1.0", Suffix/binary>>) -> {<<"xn">>, Suffix};
+decode(<<"http://www.w3.org/2001/XMLSchema#", Suffix/binary>>) -> {<<"xsd">>, Suffix};
+decode(<<"http://www.w3.org/XSL/Transform/1.0", Suffix/binary>>) -> {<<"xsl10">>, Suffix};
+decode(<<"http://www.w3.org/1999/XSL/Transform", Suffix/binary>>) -> {<<"xsl1999">>, Suffix};
+decode(<<"http://www.w3.org/TR/WD-xsl", Suffix/binary>>) -> {<<"xslwd">>, Suffix};
+decode(<<"urn:yahoo:maps", Suffix/binary>>) -> {<<"y">>, Suffix};
+decode(<<"http://dbpedia.org/class/yago/", Suffix/binary>>) -> {<<"yago">>, Suffix};
+decode(<<"http://yago-knowledge.org/resource/", Suffix/binary>>) -> {<<"yago-res">>, Suffix};
+decode(<<"http://gdata.youtube.com/schemas/2007", Suffix/binary>>) -> {<<"yt">>, Suffix};
+decode(<<"http://s.zemanta.com/ns#", Suffix/binary>>) -> {<<"zem">>, Suffix};
+decode(<<"http://rdf.freebase.com/key/", Suffix/binary>>) -> {<<"fbase">>, Suffix};
+decode(<<"urn:iso:3166-2:", Suffix/binary>>) -> {<<"langString">>, Suffix};
+decode(Suffix) -> {undefined, Suffix}.
 
-encoder({{iri, Ns}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
-   hornlog:rule(hornlog:like(fun semantic_ns:encode/3, [Ns]), Uri).
+encode(<<"a">>) -> <<"http://www.w3.org/2005/Atom">>;
+encode(<<"address">>) -> <<"http://schemas.talis.com/2005/address/schema#">>;
+encode(<<"admin">>) -> <<"http://webns.net/mvcb/">>;
+encode(<<"atom">>) -> <<"http://atomowl.org/ontologies/atomrdf#">>;
+encode(<<"aws">>) -> <<"http://soap.amazon.com/">>;
+encode(<<"b3s">>) -> <<"http://b3s.openlinksw.com/">>;
+encode(<<"batch">>) -> <<"http://schemas.google.com/gdata/batch">>;
+encode(<<"bibo">>) -> <<"http://purl.org/ontology/bibo/">>;
+encode(<<"bif">>) -> <<"bif:">>;
+encode(<<"bugzilla">>) -> <<"http://www.openlinksw.com/schemas/bugzilla#">>;
+encode(<<"c">>) -> <<"http://www.w3.org/2002/12/cal/icaltzd#">>;
+encode(<<"campsite">>) -> <<"http://www.openlinksw.com/campsites/schema#">>;
+encode(<<"category-en">>) -> <<"http://dbpedia.org/resource/template:">>;
+encode(<<"cb">>) -> <<"http://www.crunchbase.com/">>;
+encode(<<"cc">>) -> <<"http://web.resource.org/cc/">>;
+encode(<<"content">>) -> <<"http://purl.org/rss/1.0/modules/content/">>;
+encode(<<"cv">>) -> <<"http://purl.org/captsolo/resume-rdf/0.2/cv#">>;
+encode(<<"cvbase">>) -> <<"http://purl.org/captsolo/resume-rdf/0.2/base#">>;
+encode(<<"dawgt">>) -> <<"http://www.w3.org/2001/sw/DataAccess/tests/test-dawg#">>;
+encode(<<"dbc">>) -> <<"http://dbpedia.org/resource/Category:">>;
+encode(<<"dbo">>) -> <<"http://dbpedia.org/ontology/">>;
+encode(<<"dbp">>) -> <<"http://dbpedia.org/property/">>;
+encode(<<"dbpedia-af">>) -> <<"http://af.dbpedia.org/resource/">>;
+encode(<<"dbpedia-als">>) -> <<"http://als.dbpedia.org/resource/">>;
+encode(<<"dbpedia-an">>) -> <<"http://an.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ar">>) -> <<"http://ar.dbpedia.org/resource/">>;
+encode(<<"dbpedia-az">>) -> <<"http://az.dbpedia.org/resource/">>;
+encode(<<"dbpedia-bar">>) -> <<"http://bar.dbpedia.org/resource/">>;
+encode(<<"dbpedia-be">>) -> <<"http://be.dbpedia.org/resource/">>;
+encode(<<"dbpedia-be-x-old">>) -> <<"http://be-x-old.dbpedia.org/resource/">>;
+encode(<<"dbpedia-bg">>) -> <<"http://bg.dbpedia.org/resource/">>;
+encode(<<"dbpedia-br">>) -> <<"http://br.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ca">>) -> <<"http://ca.dbpedia.org/resource/">>;
+encode(<<"dbpedia-commons">>) -> <<"http://commons.dbpedia.org/resource/">>;
+encode(<<"dbpedia-cs">>) -> <<"http://cs.dbpedia.org/resource/">>;
+encode(<<"dbpedia-cy">>) -> <<"http://cy.dbpedia.org/resource/">>;
+encode(<<"dbpedia-da">>) -> <<"http://da.dbpedia.org/resource/">>;
+encode(<<"dbpedia-de">>) -> <<"http://de.dbpedia.org/resource/">>;
+encode(<<"dbpedia-dsb">>) -> <<"http://dsb.dbpedia.org/resource/">>;
+encode(<<"dbpedia-el">>) -> <<"http://el.dbpedia.org/resource/">>;
+encode(<<"dbpedia-eo">>) -> <<"http://eo.dbpedia.org/resource/">>;
+encode(<<"dbpedia-es">>) -> <<"http://es.dbpedia.org/resource/">>;
+encode(<<"dbpedia-et">>) -> <<"http://et.dbpedia.org/resource/">>;
+encode(<<"dbpedia-eu">>) -> <<"http://eu.dbpedia.org/resource/">>;
+encode(<<"dbpedia-fa">>) -> <<"http://fa.dbpedia.org/resource/">>;
+encode(<<"dbpedia-fi">>) -> <<"http://fi.dbpedia.org/resource/">>;
+encode(<<"dbpedia-fr">>) -> <<"http://fr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-frr">>) -> <<"http://frr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-fy">>) -> <<"http://fy.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ga">>) -> <<"http://ga.dbpedia.org/resource/">>;
+encode(<<"dbpedia-gd">>) -> <<"http://gd.dbpedia.org/resource/">>;
+encode(<<"dbpedia-gl">>) -> <<"http://gl.dbpedia.org/resource/">>;
+encode(<<"dbpedia-he">>) -> <<"http://he.dbpedia.org/resource/">>;
+encode(<<"dbpedia-hr">>) -> <<"http://hr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-hsb">>) -> <<"http://hsb.dbpedia.org/resource/">>;
+encode(<<"dbpedia-hu">>) -> <<"http://hu.dbpedia.org/resource/">>;
+encode(<<"dbpedia-id">>) -> <<"http://id.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ie">>) -> <<"http://ie.dbpedia.org/resource/">>;
+encode(<<"dbpedia-io">>) -> <<"http://io.dbpedia.org/resource/">>;
+encode(<<"dbpedia-is">>) -> <<"http://is.dbpedia.org/resource/">>;
+encode(<<"dbpedia-it">>) -> <<"http://it.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ja">>) -> <<"http://ja.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ka">>) -> <<"http://ka.dbpedia.org/resource/">>;
+encode(<<"dbpedia-kk">>) -> <<"http://kk.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ko">>) -> <<"http://ko.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ku">>) -> <<"http://ku.dbpedia.org/resource/">>;
+encode(<<"dbpedia-la">>) -> <<"http://la.dbpedia.org/resource/">>;
+encode(<<"dbpedia-lb">>) -> <<"http://lb.dbpedia.org/resource/">>;
+encode(<<"dbpedia-lmo">>) -> <<"http://lmo.dbpedia.org/resource/">>;
+encode(<<"dbpedia-lt">>) -> <<"http://lt.dbpedia.org/resource/as">>;
+encode(<<"dbpedia-lv">>) -> <<"http://lv.dbpedia.org/resource/a">>;
+encode(<<"dbpedia-mk">>) -> <<"http://mk.dbpedia.org/resource/">>;
+encode(<<"dbpedia-mr">>) -> <<"http://mr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ms">>) -> <<"http://ms.dbpedia.org/resource/">>;
+encode(<<"dbpedia-nah">>) -> <<"http://nah.dbpedia.org/resource/">>;
+encode(<<"dbpedia-nds">>) -> <<"http://nds.dbpedia.org/resource/">>;
+encode(<<"dbpedia-nl">>) -> <<"http://nl.dbpedia.org/resource/">>;
+encode(<<"dbpedia-nn">>) -> <<"http://nn.dbpedia.org/resource/">>;
+encode(<<"dbpedia-no">>) -> <<"http://no.dbpedia.org/resource/">>;
+encode(<<"dbpedia-nov">>) -> <<"http://nov.dbpedia.org/resource/">>;
+encode(<<"dbpedia-oc">>) -> <<"http://oc.dbpedia.org/resource/">>;
+encode(<<"dbpedia-os">>) -> <<"http://os.dbpedia.org/resource/">>;
+encode(<<"dbpedia-pam">>) -> <<"http://pam.dbpedia.org/resource/">>;
+encode(<<"dbpedia-pl">>) -> <<"http://pl.dbpedia.org/resource/">>;
+encode(<<"dbpedia-pms">>) -> <<"http://pms.dbpedia.org/resource/">>;
+encode(<<"dbpedia-pnb">>) -> <<"http://pnb.dbpedia.org/resource/">>;
+encode(<<"dbpedia-pt">>) -> <<"http://pt.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ro">>) -> <<"http://ro.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ru">>) -> <<"http://ru.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sh">>) -> <<"http://sh.dbpedia.org/resource/">>;
+encode(<<"dbpedia-simple">>) -> <<"http://simple.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sk">>) -> <<"http://sk.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sl">>) -> <<"http://sl.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sq">>) -> <<"http://sq.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sr">>) -> <<"http://sr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sv">>) -> <<"http://sv.dbpedia.org/resource/">>;
+encode(<<"dbpedia-sw">>) -> <<"http://sw.dbpedia.org/resource/">>;
+encode(<<"dbpedia-th">>) -> <<"http://th.dbpedia.org/resource/">>;
+encode(<<"dbpedia-tr">>) -> <<"http://tr.dbpedia.org/resource/">>;
+encode(<<"dbpedia-ug">>) -> <<"http://ug.dbpedia.org/resource/">>;
+encode(<<"dbpedia-uk">>) -> <<"http://uk.dbpedia.org/resource/">>;
+encode(<<"dbpedia-vi">>) -> <<"http://vi.dbpedia.org/resource/">>;
+encode(<<"dbpedia-vo">>) -> <<"http://vo.dbpedia.org/resource/">>;
+encode(<<"dbpedia-war">>) -> <<"http://war.dbpedia.org/resource/">>;
+encode(<<"dbpedia-wikicompany">>) -> <<"http://dbpedia.openlinksw.com/wikicompany/">>;
+encode(<<"dbpedia-wikidata">>) -> <<"http://wikidata.dbpedia.org/resource/">>;
+encode(<<"dbpedia-yo">>) -> <<"http://yo.dbpedia.org/resource/">>;
+encode(<<"dbpedia-zh">>) -> <<"http://zh.dbpedia.org/resource/">>;
+encode(<<"dbpedia-zh-min-nan">>) -> <<"http://zh-min-nan.dbpedia.org/resource/">>;
+encode(<<"dbr">>) -> <<"http://dbpedia.org/resource/">>;
+encode(<<"dbt">>) -> <<"http://dbpedia.org/resource/Template:">>;
+encode(<<"dc">>) -> <<"http://purl.org/dc/elements/1.1/">>;
+encode(<<"dct">>) -> <<"http://purl.org/dc/terms/">>;
+encode(<<"digg">>) -> <<"http://digg.com/docs/diggrss/">>;
+encode(<<"dul">>) -> <<"http://www.ontologydesignpatterns.org/ont/dul/DUL.owl">>;
+encode(<<"ebay">>) -> <<"urn:ebay:apis:eBLBaseComponents">>;
+encode(<<"enc">>) -> <<"http://purl.oclc.org/net/rss_2.0/enc#">>;
+encode(<<"exif">>) -> <<"http://www.w3.org/2003/12/exif/ns/">>;
+encode(<<"fb">>) -> <<"http://api.facebook.com/1.0/">>;
+encode(<<"ff">>) -> <<"http://api.friendfeed.com/2008/03">>;
+encode(<<"fn">>) -> <<"http://www.w3.org/2005/xpath-functions/#">>;
+encode(<<"foaf">>) -> <<"http://xmlns.com/foaf/0.1/">>;
+encode(<<"freebase">>) -> <<"http://rdf.freebase.com/ns/">>;
+encode(<<"g">>) -> <<"http://base.google.com/ns/1.0">>;
+encode(<<"gb">>) -> <<"http://www.openlinksw.com/schemas/google-base#">>;
+encode(<<"gd">>) -> <<"http://schemas.google.com/g/2005">>;
+encode(<<"geo">>) -> <<"http://www.w3.org/2003/01/geo/wgs84_pos#">>;
+encode(<<"geodata">>) -> <<"http://sws.geonames.org/">>;
+encode(<<"geonames">>) -> <<"http://www.geonames.org/ontology#">>;
+encode(<<"georss">>) -> <<"http://www.georss.org/georss/">>;
+encode(<<"gml">>) -> <<"http://www.opengis.net/gml">>;
+encode(<<"go">>) -> <<"http://purl.org/obo/owl/GO#">>;
+encode(<<"hlisting">>) -> <<"http://www.openlinksw.com/schemas/hlisting/">>;
+encode(<<"hoovers">>) -> <<"http://wwww.hoovers.com/">>;
+encode(<<"hrev">>) -> <<"http://www.purl.org/stuff/hrev#">>;
+encode(<<"ical">>) -> <<"http://www.w3.org/2002/12/cal/ical#">>;
+encode(<<"ir">>) -> <<"http://web-semantics.org/ns/image-regions">>;
+encode(<<"itunes">>) -> <<"http://www.itunes.com/DTDs/Podcast-1.0.dtd">>;
+encode(<<"ldp">>) -> <<"http://www.w3.org/ns/ldp#">>;
+encode(<<"lgdt">>) -> <<"http://linkedgeodata.org/triplify/">>;
+encode(<<"lgv">>) -> <<"http://linkedgeodata.org/vocabulary#">>;
+encode(<<"link">>) -> <<"http://www.xbrl.org/2003/linkbase">>;
+encode(<<"lod">>) -> <<"http://lod.openlinksw.com/">>;
+encode(<<"math">>) -> <<"http://www.w3.org/2000/10/swap/math#">>;
+encode(<<"media">>) -> <<"http://search.yahoo.com/mrss/">>;
+encode(<<"mesh">>) -> <<"http://purl.org/commons/record/mesh/">>;
+encode(<<"meta">>) -> <<"urn:oasis:names:tc:opendocument:xmlns:meta:1.0">>;
+encode(<<"mf">>) -> <<"http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#">>;
+encode(<<"mmd">>) -> <<"http://musicbrainz.org/ns/mmd-1.0#">>;
+encode(<<"mo">>) -> <<"http://purl.org/ontology/mo/">>;
+encode(<<"mql">>) -> <<"http://www.freebase.com/">>;
+encode(<<"nci">>) -> <<"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#">>;
+encode(<<"nfo">>) -> <<"http://www.semanticdesktop.org/ontologies/nfo/#">>;
+encode(<<"ng">>) -> <<"http://www.openlinksw.com/schemas/ning#">>;
+encode(<<"nyt">>) -> <<"http://data.nytimes.com/">>;
+encode(<<"oai">>) -> <<"http://www.openarchives.org/OAI/2.0/">>;
+encode(<<"oai_dc">>) -> <<"http://www.openarchives.org/OAI/2.0/oai_dc/">>;
+encode(<<"obo">>) -> <<"http://www.geneontology.org/formats/oboInOwl#">>;
+encode(<<"office">>) -> <<"urn:oasis:names:tc:opendocument:xmlns:office:1.0">>;
+encode(<<"ogc">>) -> <<"http://www.opengis.net/">>;
+encode(<<"ogcgml">>) -> <<"http://www.opengis.net/ont/gml#">>;
+encode(<<"ogcgs">>) -> <<"http://www.opengis.net/ont/geosparql#">>;
+encode(<<"ogcgsf">>) -> <<"http://www.opengis.net/def/function/geosparql/">>;
+encode(<<"ogcgsr">>) -> <<"http://www.opengis.net/def/rule/geosparql/">>;
+encode(<<"ogcsf">>) -> <<"http://www.opengis.net/ont/sf#">>;
+encode(<<"oo">>) -> <<"urn:oasis:names:tc:opendocument:xmlns:meta:1.0:">>;
+encode(<<"openSearch">>) -> <<"http://a9.com/-/spec/opensearchrss/1.0/">>;
+encode(<<"opencyc">>) -> <<"http://sw.opencyc.org/concept/">>;
+encode(<<"opl">>) -> <<"http://www.openlinksw.com/schema/attribution#">>;
+encode(<<"opl-gs">>) -> <<"http://www.openlinksw.com/schemas/getsatisfaction/">>;
+encode(<<"opl-meetup">>) -> <<"http://www.openlinksw.com/schemas/meetup/">>;
+encode(<<"opl-xbrl">>) -> <<"http://www.openlinksw.com/schemas/xbrl/">>;
+encode(<<"oplweb">>) -> <<"http://www.openlinksw.com/schemas/oplweb#">>;
+encode(<<"ore">>) -> <<"http://www.openarchives.org/ore/terms/">>;
+encode(<<"owl">>) -> <<"http://www.w3.org/2002/07/owl#">>;
+encode(<<"product">>) -> <<"http://www.buy.com/rss/module/productV2/">>;
+encode(<<"protseq">>) -> <<"http://purl.org/science/protein/bysequence/">>;
+encode(<<"prov">>) -> <<"http://www.w3.org/ns/prov#">>;
+encode(<<"r">>) -> <<"http://backend.userland.com/rss2">>;
+encode(<<"radio">>) -> <<"http://www.radiopop.co.uk/">>;
+encode(<<"rdf">>) -> <<"http://www.w3.org/1999/02/22-rdf-syntax-ns#">>;
+encode(<<"rdfa">>) -> <<"http://www.w3.org/ns/rdfa#">>;
+encode(<<"rdfdf">>) -> <<"http://www.openlinksw.com/virtrdf-data-formats#">>;
+encode(<<"rdfs">>) -> <<"http://www.w3.org/2000/01/rdf-schema#">>;
+encode(<<"rev">>) -> <<"http://purl.org/stuff/rev#">>;
+encode(<<"review">>) -> <<"http://www.purl.org/stuff/rev#">>;
+encode(<<"rss">>) -> <<"http://purl.org/rss/1.0/">>;
+encode(<<"sc">>) -> <<"http://purl.org/science/owl/sciencecommons/">>;
+encode(<<"schema">>) -> <<"http://schema.org/">>;
+encode(<<"scovo">>) -> <<"http://purl.org/NET/scovo#">>;
+encode(<<"sd">>) -> <<"http://www.w3.org/ns/sparql-service-description#">>;
+encode(<<"sf">>) -> <<"urn:sobject.enterprise.soap.sforce.com">>;
+encode(<<"sioc">>) -> <<"http://rdfs.org/sioc/ns#">>;
+encode(<<"sioct">>) -> <<"http://rdfs.org/sioc/types#">>;
+encode(<<"skiresort">>) -> <<"http://www.openlinksw.com/ski_resorts/schema#">>;
+encode(<<"skos">>) -> <<"http://www.w3.org/2004/02/skos/core#">>;
+encode(<<"slash">>) -> <<"http://purl.org/rss/1.0/modules/slash/">>;
+encode(<<"sql">>) -> <<"sql:">>;
+encode(<<"stock">>) -> <<"http://xbrlontology.com/ontology/finance/stock_market#">>;
+encode(<<"twfy">>) -> <<"http://www.openlinksw.com/schemas/twfy#">>;
+encode(<<"umbel">>) -> <<"http://umbel.org/umbel#">>;
+encode(<<"umbel-ac">>) -> <<"http://umbel.org/umbel/ac/">>;
+encode(<<"umbel-rc">>) -> <<"http://umbel.org/umbel/rc/">>;
+encode(<<"umbel-sc">>) -> <<"http://umbel.org/umbel/sc/">>;
+encode(<<"uniprot">>) -> <<"http://purl.uniprot.org/">>;
+encode(<<"units">>) -> <<"http://dbpedia.org/units/">>;
+encode(<<"usc">>) -> <<"http://www.rdfabout.com/rdf/schema/uscensus/details/100pct/">>;
+encode(<<"v">>) -> <<"http://www.openlinksw.com/xsltext/">>;
+encode(<<"vcard">>) -> <<"http://www.w3.org/2001/vcard-rdf/3.0#">>;
+encode(<<"vcard2006">>) -> <<"http://www.w3.org/2006/vcard/ns#">>;
+encode(<<"vi">>) -> <<"http://www.openlinksw.com/virtuoso/xslt/">>;
+encode(<<"virt">>) -> <<"http://www.openlinksw.com/virtuoso/xslt">>;
+encode(<<"virtcxml">>) -> <<"http://www.openlinksw.com/schemas/virtcxml#">>;
+encode(<<"virtpivot">>) -> <<"http://www.openlinksw.com/schemas/virtpivot#">>;
+encode(<<"virtrdf">>) -> <<"http://www.openlinksw.com/schemas/virtrdf#">>;
+encode(<<"void">>) -> <<"http://rdfs.org/ns/void#">>;
+encode(<<"wb">>) -> <<"http://www.worldbank.org/">>;
+encode(<<"wdrs">>) -> <<"http://www.w3.org/2007/05/powder-s#">>;
+encode(<<"wf">>) -> <<"http://www.w3.org/2005/01/wf/flow#">>;
+encode(<<"wfw">>) -> <<"http://wellformedweb.org/CommentAPI/">>;
+encode(<<"wiki-commons">>) -> <<"http://commons.wikimedia.org/wiki/">>;
+encode(<<"wikidata">>) -> <<"http://www.wikidata.org/entity/">>;
+encode(<<"wikipedia-en">>) -> <<"http://en.wikipedia.org/wiki/">>;
+encode(<<"xf">>) -> <<"http://www.w3.org/2004/07/xpath-functions">>;
+encode(<<"xfn">>) -> <<"http://gmpg.org/xfn/11#">>;
+encode(<<"xhtml">>) -> <<"http://www.w3.org/1999/xhtml">>;
+encode(<<"xhv">>) -> <<"http://www.w3.org/1999/xhtml/vocab#">>;
+encode(<<"xi">>) -> <<"http://www.xbrl.org/2003/instance">>;
+encode(<<"xml">>) -> <<"http://www.w3.org/XML/1998/namespace">>;
+encode(<<"xn">>) -> <<"http://www.ning.com/atom/1.0">>;
+encode(<<"xsd">>) -> <<"http://www.w3.org/2001/XMLSchema#">>;
+encode(<<"xsl10">>) -> <<"http://www.w3.org/XSL/Transform/1.0">>;
+encode(<<"xsl1999">>) -> <<"http://www.w3.org/1999/XSL/Transform">>;
+encode(<<"xslwd">>) -> <<"http://www.w3.org/TR/WD-xsl">>;
+encode(<<"y">>) -> <<"urn:yahoo:maps">>;
+encode(<<"yago">>) -> <<"http://dbpedia.org/class/yago/">>;
+encode(<<"yago-res">>) -> <<"http://yago-knowledge.org/resource/">>;
+encode(<<"yt">>) -> <<"http://gdata.youtube.com/schemas/2007">>;
+encode(<<"zem">>) -> <<"http://s.zemanta.com/ns#">>;
+encode(<<"fbase">>) -> <<"http://rdf.freebase.com/key/">>;
+encode(<<"langString">>) -> <<"urn:iso:3166-2:">>;
+encode(_) -> undefined.
 
-%%
-%%
-encode(<<>>, _X, Suffix) ->
-   Suffix;
-encode(Ns, _X, Suffix) ->
-   {Ns, Suffix}.
-
-
-%%
-%% build prefix decoder
-%%   xsd:integer -> http://www.w3.org/2001/XMLSchema#integer
-decoder(Id, Kns)
- when is_atom(Id), is_list(Kns) ->
-   hornlog:c(Id, [decoder(X) || X <- extend(Kns)]).
-
-decoder({{iri, <<>>}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
-   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<>>);
-decoder({{iri, Ns}, {iri,<<"rdfs:domain">>}, {iri, Uri}}) ->
-   hornlog:rule(hornlog:like(fun semantic_ns:decode/3, [Uri]), <<Ns/binary>>).
-
-decode(<<>>, _X, Suffix) ->
-   Suffix;
-decode(Uri, _X, Suffix) ->
-   <<Uri/binary, Suffix/binary>>.
-
-
-%%
-%% extends list of knowledge name-space with empty statement to fall-back prefix match
-extend(Kns) -> 
-   Kns ++ [{{iri, <<>>}, {iri,<<"rdfs:domain">>}, {iri, <<>>}}].

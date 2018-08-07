@@ -30,50 +30,9 @@
 %%
 %%
 start(_Type, _Args) ->
-   % schema(),
-   config(),
-   % define(),
    {ok, self()}. 
 
 %%
 %%
 stop(_State) ->
    ok.
-
-%%
-%% configure system prefixes
-config() ->
-   Default = filename:join([code:priv_dir(semantic), "prefixes.nt"]),
-   prefixes( opts:val(prefixes, Default, semantic) ).   
-
-prefixes(File) ->
-   prefixes(semantic_ns_encode, semantic_ns_decode, 
-      semantic_nt:decode(
-         stdio:file(File)
-      )
-   ).
-
-prefixes(Enc, Dec, #stream{} = KnowledgeNS) ->
-   prefixes(Enc, Dec, stream:list(KnowledgeNS));
-
-prefixes(Enc, Dec, KnowledgeNS)
- when is_list(KnowledgeNS) ->
-   {module, Enc} = semantic_ns:encoder(Enc, KnowledgeNS),
-   {module, Dec} = semantic_ns:decoder(Dec, KnowledgeNS),
-   ok.
-
-%%
-%% schema table
-% schema() ->
-%    _  = ets:new(semantic, [
-%       public
-%      ,named_table
-%      ,set
-%      ,{keypos, #rdf_property.id}
-%      ,{read_concurrency,  true}
-%    ]).
-
-% %%
-% %% define built-in predicates
-% define() ->
-%    true = semantic:create(semantic:p(?RDF_ID, ?XSD_ANYURI, true, true)).

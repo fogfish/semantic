@@ -36,16 +36,12 @@ all() ->
 %%%----------------------------------------------------------------------------   
 
 encoder(_Config) -> 
-   A  = [{{iri, <<"xsd">>}, {iri, <<"rdfs:domain">>}, {iri, <<"http://www.w3.org/2001/XMLSchema#">>}}],
-   {module, test_encoder} = semantic_ns:encoder(test_encoder, A),
-   {<<"xsd">>, <<"int">>} = test_encoder:q(undefined, <<"http://www.w3.org/2001/XMLSchema#int">>),
-   {<<"xsd">>, <<>>} = test_encoder:q(undefined, <<"http://www.w3.org/2001/XMLSchema#">>),
-   <<"http://www.w3.org">> = test_encoder:q(undefined, <<"http://www.w3.org">>).
+   {<<"xsd">>, <<"int">>} = semantic_ns:decode(<<"http://www.w3.org/2001/XMLSchema#int">>),
+   {<<"xsd">>, <<>>} = semantic_ns:decode(<<"http://www.w3.org/2001/XMLSchema#">>),
+   {undefined, <<"http://www.w3.org">>} = semantic_ns:decode(<<"http://www.w3.org">>).
 
 decoder(_Config) ->
-   A  = [{{iri, <<"xsd">>}, {iri, <<"rdfs:domain">>}, {iri, <<"http://www.w3.org/2001/XMLSchema#">>}}],
-   {module, test_decoder} = semantic_ns:decoder(test_decoder, A),
-   <<"http://www.w3.org/2001/XMLSchema#">> = test_decoder:q(undefined, <<"xsd">>),
-   <<"foaf:name">> = test_decoder:q(undefined, <<"foaf:name">>).
+   <<"http://www.w3.org/2001/XMLSchema#">> = semantic_ns:encode(<<"xsd">>),
+   undefined = semantic_ns:encode(<<"foaf:name">>).
 
 

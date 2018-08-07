@@ -106,8 +106,8 @@ start() ->
 compact({iri, _, _} = IRI) ->
    IRI;
 compact({iri,  Uri}) ->
-   case semantic_ns_encode:q(undefined, Uri) of
-      Uri ->
+   case semantic_ns:decode(Uri) of
+      {undefined, _} ->
          undefined;
       {Prefix, Suffix} ->
          {iri, Prefix, Suffix}
@@ -132,10 +132,10 @@ compact(IRI) ->
 absolute({iri, _} = IRI) ->
    IRI;
 absolute({iri, Prefix, Suffix}) ->
-   case semantic_ns_decode:q(undefined, Prefix) of
-      Prefix   ->
+   case semantic_ns:encode(Prefix) of
+      undefined ->
          undefined;
-      Absolute ->
+      Absolute  ->
          {iri, <<Absolute/binary, Suffix/binary>>}
    end;
 absolute(IRI) ->
