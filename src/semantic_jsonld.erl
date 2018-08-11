@@ -22,17 +22,15 @@
 
 %%
 %% 
-decode(#{<<"@context">> := Context, <<"@id">> := Node} = JsonLD) -> 
-   decode(Context, semantic:absolute(Node), maps:without([<<"@context">>, <<"@id">>], JsonLD));
+decode(#{<<"@context">> := Context} = JsonLD) -> 
+   decode(Context, semantic:absolute(id(JsonLD)), 
+      maps:without([<<"@context">>, <<"@id">>, <<"rdf:id">>, <<"id">>], JsonLD)
+   );
 
-decode(#{<<"@context">> := Context, <<"rdf:id">> := Node} = JsonLD) -> 
-   decode(Context, semantic:absolute(Node), maps:without([<<"@context">>, <<"rdf:id">>], JsonLD));
-
-decode(#{<<"@id">> := Node} = JsonLD) ->
-   decode(#{}, semantic:absolute(Node), maps:without([<<"@id">>], JsonLD));
-
-decode(#{<<"rdf:id">> := Node} = JsonLD) ->
-   decode(#{}, semantic:absolute(Node), maps:without([<<"rdf:id">>], JsonLD)).
+decode(#{} = JsonLD) ->
+   decode(#{}, semantic:absolute(id(JsonLD)), 
+      maps:without([<<"@context">>, <<"@id">>, <<"rdf:id">>, <<"id">>], JsonLD)
+   ).
 
 decode(Context, Node, JsonLD) ->
    lists:flatten(
@@ -46,6 +44,10 @@ decode(Context, Node, JsonLD) ->
          JsonLD
       )
    ).
+
+id(#{<<"id">> := Id}) -> Id;
+id(#{<<"@id">> := Id}) -> Id;
+id(#{<<"rdf:id">> := Id}) -> Id.
 
 spo(S, P, Type, O)
  when is_list(Type), is_list(O) ->
