@@ -25,8 +25,14 @@
 decode(#{<<"@context">> := Context, <<"@id">> := Node} = JsonLD) -> 
    decode(Context, semantic:absolute(Node), maps:without([<<"@context">>, <<"@id">>], JsonLD));
 
+decode(#{<<"@context">> := Context, <<"rdf:id">> := Node} = JsonLD) -> 
+   decode(Context, semantic:absolute(Node), maps:without([<<"@context">>, <<"rdf:id">>], JsonLD));
+
 decode(#{<<"@id">> := Node} = JsonLD) ->
-   decode(#{}, semantic:absolute(Node), maps:without([<<"@id">>], JsonLD)).
+   decode(#{}, semantic:absolute(Node), maps:without([<<"@id">>], JsonLD));
+
+decode(#{<<"rdf:id">> := Node} = JsonLD) ->
+   decode(#{}, semantic:absolute(Node), maps:without([<<"rdf:id">>], JsonLD)).
 
 decode(Context, Node, JsonLD) ->
    lists:flatten(
