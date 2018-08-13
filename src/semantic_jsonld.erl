@@ -123,6 +123,12 @@ typeof(Key, Val, Context) ->
 typeof(Val) when is_binary(Val) -> ?XSD_STRING;
 typeof(Val) when is_integer(Val) -> ?XSD_INTEGER; 
 typeof(Val) when is_float(Val) -> ?XSD_DOUBLE;
-typeof(#{<<"type">> := <<"Feature">>, <<"geometry">> := #{<<"type">> := <<"Point">>}}) -> ?GEORSS_POINT;
+typeof(#{<<"lat">> := _, <<"lng">> := _}) -> ?GEORSS_POINT;
+typeof(#{<<"type">> := <<"Point">>}) -> ?GEORSS_JSON;
+typeof(#{<<"type">> := <<"MultiPoint">>}) -> ?GEORSS_JSON;
+typeof(#{<<"type">> := <<"LineString">>}) -> ?GEORSS_JSON;
+typeof(#{<<"type">> := <<"MultiLineString">>}) -> ?GEORSS_JSON;
+typeof(#{<<"type">> := <<"Polygon">>}) -> ?GEORSS_JSON;
+typeof(#{<<"type">> := <<"MultiPolygon">>}) -> ?GEORSS_JSON;
 typeof(true) -> ?XSD_BOOLEAN;
 typeof(false) -> ?XSD_BOOLEAN. 

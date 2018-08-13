@@ -83,4 +83,5 @@
 %% geo hash
 -define(GEORSS_POINT,    {iri, <<"georss">>, <<"point">>}).
 -define(GEORSS_HASH,     {iri, <<"georss">>, <<"hash">>}).
+-define(GEORSS_JSON,     {iri, <<"georss">>, <<"json">>}).
 
