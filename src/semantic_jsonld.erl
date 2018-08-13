@@ -123,7 +123,6 @@ typeof(Key, Val, Context) ->
 typeof(Val) when is_binary(Val) -> ?XSD_STRING;
 typeof(Val) when is_integer(Val) -> ?XSD_INTEGER; 
 typeof(Val) when is_float(Val) -> ?XSD_DOUBLE;
-typeof(#{<<"lat">> := _, <<"lon">> := _}) -> ?GEORSS_POINT;
-typeof(#{lat := _, lon := _}) -> ?GEORSS_POINT;
+typeof(#{<<"type">> := <<"Feature">>, <<"geometry">> := #{<<"type">> := <<"Point">>}}) -> ?GEORSS_POINT;
 typeof(true) -> ?XSD_BOOLEAN;
 typeof(false) -> ?XSD_BOOLEAN. 

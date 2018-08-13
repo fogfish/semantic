@@ -91,11 +91,13 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
 
 ### geo
 
-The geographical coordinates are hashed using GeoHash, ensuring 3.7cm x 1.8cm precision. The hashing is only applied to `georss:point`. Other formats are not supported yet.
+The geographical coordinates are hashed using GeoHash, ensuring 3.7cm x 1.8cm precision. 
+`georss:hash` is encoded as binary, `georss:point` is tuple of floats.
+
 
 Lang | Data type
 ---  | ---
-Erlang | `-type binary().`
+Erlang | `-type binary() | {lat(), lng()}.`
 RDF | xmlns:xsd="http://www.georss.org/georss/point"
     | xmlns:xsd="http://www.georss.org/georss/hash"
 

@@ -83,6 +83,7 @@
                   | datetime().
 
 -type geohash()  :: binary().
+-type geopoint() :: binary().
 -type datetime() :: {integer(), integer(), integer()}.
 
 -type heap(X)    :: X | [X] | _. 

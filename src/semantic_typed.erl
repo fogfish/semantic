@@ -196,9 +196,12 @@ decode(?XSD_DAY = Type, O, Fact) ->
 decode(?GEORSS_HASH = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
+decode(?GEORSS_POINT = Type, #{<<"type">> := <<"Feature">>, <<"geometry">> := #{<<"type">> := <<"Point">>, <<"coordinates">> := [Lng, Lat]}}, Fact) ->
+   Fact#{o => {Lat, Lng}, type => Type};
+
 decode(?GEORSS_POINT = Type, O, Fact) ->
    [Lat, Lng] = binary:split(O, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => Type}. 
+   Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => Type}. 
 
 
 %%
