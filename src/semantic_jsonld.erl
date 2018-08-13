@@ -123,7 +123,6 @@ typeof(Key, Val, Context) ->
 typeof(Val) when is_binary(Val) -> ?XSD_STRING;
 typeof(Val) when is_integer(Val) -> ?XSD_INTEGER; 
 typeof(Val) when is_float(Val) -> ?XSD_DOUBLE;
-typeof(#{<<"lat">> := _, <<"lng">> := _}) -> ?GEORSS_POINT;
 typeof(#{<<"type">> := <<"Point">>}) -> ?GEORSS_JSON;
 typeof(#{<<"type">> := <<"MultiPoint">>}) -> ?GEORSS_JSON;
 typeof(#{<<"type">> := <<"LineString">>}) -> ?GEORSS_JSON;
