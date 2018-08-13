@@ -197,7 +197,7 @@ decode(?GEORSS_HASH = Type, O, Fact) ->
    Fact#{o => O, type => Type};
 
 decode(?GEORSS_POINT = Type, O, Fact) ->
-   [Lat, Lng] = binary:split(O, <<$ >>), 
+   [Lat, Lng] = binary:split(O, [<<$ >>, <<$,>>]), 
    Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => Type};
 
 decode(?GEORSS_JSON = Type, #{<<"type">> := _, <<"coordinates">> := _} = GeoJson, Fact) ->
