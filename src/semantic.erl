@@ -87,7 +87,7 @@
 -type lat()          :: float().
 -type lng()          :: float().
 -type georss_hash()  :: binary().
--type georss_json()  :: #{binary() := binary(), binary() := [_]}.
+-type georss_json()  :: #{}.
 
 %% collections of facts
 -type heap(X)    :: X | [X] | _. 
