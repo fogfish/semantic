@@ -16,19 +16,7 @@
 -module(semantic_typed_SUITE).
 -include_lib("common_test/include/ct.hrl").
 
-%%
-%% common test
--export([
-   all/0,
-   groups/0,
-   init_per_suite/1,
-   end_per_suite/1,
-   init_per_group/2,
-   end_per_group/2
-]).
-
-%%
-%% unit tests
+-export([all/0, init_per_suite/1, end_per_suite/1]).
 -export([
    spo_with_uri/1,
    spo_with_string/1,
@@ -37,60 +25,34 @@
    spo_with_float/1,
    spo_with_bool/1,
    spo_with_datetime/1,
-   spo_with_geohash/1
+   spo_with_geopoint/1
 ]).
 
-%%%----------------------------------------------------------------------------   
-%%%
-%%% suite
-%%%
-%%%----------------------------------------------------------------------------   
-all() ->
-   [
-      {group, compile}
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
-groups() ->
-   [
-      {compile, [parallel], 
-         [spo_with_uri, spo_with_string, spo_with_lang_string, spo_with_integer, 
-          spo_with_float, spo_with_bool, spo_with_datetime, spo_with_geohash]}
-   ].
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 init_per_suite(Config) ->
-   ok = semantic:start(),
+   {ok, _} = semantic:start(),
    Config.
 
 end_per_suite(_Config) ->
    ok.
 
-%% 
-%%
-init_per_group(_, Config) ->
-   Config.
-
-end_per_group(_, _Config) ->
-   ok.
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 
 spo_with_uri(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> <http://example.org/c> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
       p := {iri, <<"foaf">>, <<"name">>},
-      o := {iri, <<"http://example.org/c">>}
-   } = maps:with([s,p,o], semantic:typed( decode(A) )),
-   rel = semantic:typeof(T).
+      o := {iri, <<"http://example.org/c">>},
+      type := {iri, <<"xsd">>, <<"anyURI">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   iri = semantic:native(T).
 
 
 spo_with_string(_Config) ->
@@ -101,7 +63,7 @@ spo_with_string(_Config) ->
       o := <<"c">>,
       type := {iri, <<"xsd">>, <<"string">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   binary = semantic:typeof(T).
+   binary = semantic:native(T).
 
 spo_with_lang_string(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>,
@@ -111,7 +73,7 @@ spo_with_lang_string(_Config) ->
       o := <<"text">>,
       type := {iri, <<"langString">>, <<"en">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   <<"en">> = semantic:typeof(T).
+   <<"en">> = semantic:native(T).
 
 
 spo_with_integer(_Config) ->
@@ -122,7 +84,7 @@ spo_with_integer(_Config) ->
       o := 1,
       type := {iri, <<"xsd">>, <<"integer">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   integer = semantic:typeof(T).
+   integer = semantic:native(T).
 
 
 spo_with_float(_Config) ->
@@ -133,7 +95,7 @@ spo_with_float(_Config) ->
       o := 1.0,
       type := {iri, <<"xsd">>, <<"float">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   float = semantic:typeof(T).
+   float = semantic:native(T).
 
 spo_with_bool(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n">>,
@@ -143,7 +105,7 @@ spo_with_bool(_Config) ->
       o := true,
       type := {iri, <<"xsd">>, <<"boolean">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   boolean = semantic:typeof(T).
+   boolean = semantic:native(T).
 
 spo_with_datetime(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"19700101T000000Z\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n">>,
@@ -153,17 +115,17 @@ spo_with_datetime(_Config) ->
       o := {0, 0, 0},
       type := {iri, <<"xsd">>, <<"dateTime">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   datetime = semantic:typeof(T).
+   datetime = semantic:native(T).
 
-spo_with_geohash(_Config) ->
+spo_with_geopoint(_Config) ->
    A = <<"<http://example.org/a> <http://www.georss.org/georss/point> \"64.0 -150.0\" .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
       p := {iri, <<"georss">>, <<"point">>},
-      o := <<"bemk4dv748tq">>,
+      o := {64.0, -150.0},
       type := {iri, <<"georss">>, <<"point">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   geohash = semantic:typeof(T).
+   geopoint = semantic:native(T).
 
 
 

@@ -20,56 +20,72 @@
 -include("semantic.hrl").
 
 -export([
-   native/1,
-   c/1
+   typeof/1
+,  native/1
+,  compile/1
 ]).
 
 %%
+%% deduct semantic type from Erlang native term
+typeof({iri, _}) -> ?XSD_ANYURI;
+typeof({iri, _, _}) -> ?XSD_ANYURI;
+typeof(X) when is_binary(X) -> ?XSD_STRING;
+typeof(X) when is_integer(X) -> ?XSD_INTEGER;
+typeof(X) when is_float(X) -> ?XSD_DECIMAL;
+typeof(true) -> ?XSD_BOOLEAN;
+typeof(false) -> ?XSD_BOOLEAN;
+typeof({A, B, C}) when is_integer(A), is_integer(B), is_integer(C) -> ?XSD_DATETIME;
+typeof({A, B}) when is_float(A), is_float(B) -> ?GEORSS_POINT;
+typeof(#{<<"type">> := _, <<"coordinates">> := _}) -> ?GEORSS_JSON;
+typeof(#{}) -> ?RDF_MAP;
+typeof(X) when is_list(X) -> ?RDF_LIST;
+typeof(X) when is_tuple(X) -> ?RDF_SEQ.
+
+
+%%
 %% Translate semantic type to Erlang native
-native(#{type := ?XSD_STRING}) -> binary;
+native({{iri, _}, {iri, _}, {iri, _}}) -> native_type(?XSD_ANYURI);
+native({{iri, _}, {iri, _}, {Type, O}}) -> native_type(Type);
+native(#{s := _, p := _, o := _, type := Type}) -> native_type(Type).
 
-native(#{type := ?XSD_INTEGER}) -> integer;
+native_type(?XSD_ANYURI) -> iri;
 
-native(#{type := ?XSD_BYTE}) -> integer;
-native(#{type := ?XSD_SHORT}) -> integer;
-native(#{type := ?XSD_INT}) -> integer;
-native(#{type := ?XSD_LONG}) -> integer;
+native_type(?XSD_STRING) -> binary;
 
+native_type(?XSD_INTEGER) -> integer;
+native_type(?XSD_BYTE) -> integer;
+native_type(?XSD_SHORT) -> integer;
+native_type(?XSD_INT) -> integer;
+native_type(?XSD_LONG) -> integer;
 
-native(#{type := ?XSD_DECIMAL}) -> float;
-native(#{type := ?XSD_FLOAT}) -> float;
-native(#{type := ?XSD_DOUBLE}) -> float;
+native_type(?XSD_DECIMAL) -> float;
+native_type(?XSD_FLOAT) -> float;
+native_type(?XSD_DOUBLE) -> float;
 
-native(#{type := ?XSD_BOOLEAN}) -> boolean;
+native_type(?XSD_BOOLEAN) -> boolean;
 
-native(#{type := ?XSD_DATETIME}) -> datetime;
-native(#{type := ?XSD_DATE}) -> datetime;
-native(#{type := ?XSD_TIME}) -> datetime;
-native(#{type := ?XSD_YEARMONTH}) -> datetime;
-native(#{type := ?XSD_YEAR}) -> integer;
-native(#{type := ?XSD_MONTHDAY}) -> binary;
-native(#{type := ?XSD_MONTH}) -> integer;
-native(#{type := ?XSD_DAY}) -> integer;
+native_type(?XSD_DATETIME) -> datetime;
+native_type(?XSD_DATE) -> datetime;
+native_type(?XSD_TIME) -> datetime;
+native_type(?XSD_YEARMONTH) -> datetime;
+native_type(?XSD_YEAR) -> datetime;
+native_type(?XSD_MONTHDAY) -> datetime;
+native_type(?XSD_MONTH) -> datetime;
+native_type(?XSD_DAY) -> datetime;
 
-native(#{type := ?GEORSS_POINT}) -> geohash;
-native(#{type := ?GEORSS_HASH}) -> geohash;
+native_type(?GEORSS_POINT) -> geopoint;
+native_type(?GEORSS_HASH) -> geohash;
+native_type(?GEORSS_JSON) -> geojson;
 
-native(#{type := {iri, ?LANG, Lang}}) -> Lang;
-native(_) -> rel.
+native_type(?RDF_MAP) -> map;
+native_type(?RDF_LIST) -> list;
+native_type(?RDF_SEQ) -> tuple;
+
+native_type({iri, ?LANG, Lang}) -> Lang.
 
 
 %%
 %% compile abstract syntax knowledge statement to type-safe once
-c({{iri, _}, {iri, _}, _} = Fact) ->
-   compile(Fact);
-
-c({s, _, _} = Stream) ->
-   stream:map(fun compile/1, Stream);
-
-c([_|_] = List) ->
-   lists:map(fun compile/1, List).
-
-
 compile({{iri, _} = S, {iri, _} = P, {iri, _} = O}) ->
    #{
       s => get_or_else(semantic:compact(S), S),
@@ -214,11 +230,11 @@ decode(<<"false">>, Fact) ->
 
 decode(LatLng, #{p := {iri, <<"georss">>, <<"point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEORSS_POINT}; 
+   Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => ?GEORSS_POINT}; 
 
 decode(LatLng, #{p := {iri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
    [Lat, Lng] = binary:split(LatLng, <<$ >>), 
-   Fact#{o => hash:geo(scalar:f(Lat), scalar:f(Lng)), type => ?GEORSS_POINT};
+   Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => ?GEORSS_POINT};
 
 decode(O, Fact) ->
    case scalar:decode(O) of

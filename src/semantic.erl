@@ -28,6 +28,7 @@
    absolute/1,
    typed/1,
    typeof/1,
+   native/1,
    deduct/1,
    nt/1,
    jsonld/1,
@@ -67,25 +68,28 @@
 -type suffix()   :: binary().
 
 %% literal data types
--type lit()      :: canonical() | semantic().
+-type lit()      :: xsd_string()
+                  | xsd_integer()
+                  | xsd_decimal()
+                  | xsd_boolean()
+                  | xsd_datetime()
+                  | georss_point()
+                  | georss_hash()
+                  | georss_json()
+                  .
 
-%% canonical data types (Erlang built-in)
--type canonical():: atom() 
-                  | binary() 
-                  | float() 
-                  | integer()
-                  | boolean()
-                  | byte()
-                  | char().
+-type xsd_string()   :: binary().
+-type xsd_integer()  :: integer().
+-type xsd_decimal()  :: float().
+-type xsd_boolean()  :: boolean().
+-type xsd_datetime() :: {integer(), integer(), integer()}.
+-type georss_point() :: {lat(), lng()} | binary().
+-type lat()          :: float().
+-type lng()          :: float().
+-type georss_hash()  :: binary().
+-type georss_json()  :: #{binary() := binary(), binary() := [_]}.
 
-%% semantic data types extension
--type semantic() :: geohash()
-                  | datetime().
-
--type geohash()  :: binary().
--type geopoint() :: binary().
--type datetime() :: {integer(), integer(), integer()}.
-
+%% collections of facts
 -type heap(X)    :: X | [X] | _. 
 
 %%%------------------------------------------------------------------
@@ -97,7 +101,7 @@
 %%
 %% start library RnD mode
 start() ->
-   applib:boot(?MODULE, []).
+   application:ensure_all_started(?MODULE).
 
 
 %%
@@ -148,14 +152,20 @@ absolute(IRI) ->
 -spec typed( heap(spo()) ) -> heap(spock()).     
 
 typed(Facts) ->
-   semantic_typed:c(Facts).
-
+   semantic_heap:map(fun semantic_typed:compile/1, Facts).
 
 %%
-%% return Erlang native type of knowledge statement
--spec typeof(spock()) -> iri().
+%% deduct semantic type from Erlang native term
+-spec typeof(_) -> iri().
 
-typeof(Fact) ->
+typeof(Term) ->
+   semantic_typed:typeof(Term).
+
+%%
+%% deduct Erlang native type from knowledge statement
+-spec native(spock() | spo()) -> iri().
+
+native(Fact) ->
    semantic_typed:native(Fact).
 
 
@@ -193,7 +203,7 @@ jsonld(JsonLD) ->
    semantic_jsonld:decode(JsonLD).
 
 %%
-%%
+%% reduces stream of triples by folding object to set
 -spec fold(datum:stream()) -> datum:stream().
 
 fold(#stream{} = Stream) ->

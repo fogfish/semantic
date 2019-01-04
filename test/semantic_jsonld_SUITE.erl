@@ -17,19 +17,7 @@
 -include_lib("common_test/include/ct.hrl").
 -include_lib("semantic/include/semantic.hrl").
 
-%%
-%% common test
--export([
-   all/0,
-   groups/0,
-   init_per_suite/1,
-   end_per_suite/1,
-   init_per_group/2,
-   end_per_group/2
-]).
-
-%%
-%% unit tests
+-export([all/0, init_per_suite/1, end_per_suite/1]).
 -export([
    json_string/1,
    json_integer/1,
@@ -41,55 +29,21 @@
    jsonld_string/1
 ]).
 
-%%%----------------------------------------------------------------------------   
-%%%
-%%% suite
-%%%
-%%%----------------------------------------------------------------------------   
-all() ->
-   [
-      {group, compile}
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
-groups() ->
-   [
-      {compile, [parallel], [
-         json_string,
-         json_integer,
-         json_double,
-         json_true,
-         json_false,
-
-         jsonld_anyuri,
-         jsonld_string
-      ]}
-   ].
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 init_per_suite(Config) ->
-   ok = semantic:start(),
+   {ok, _} = semantic:start(),
    Config.
 
 end_per_suite(_Config) ->
    ok.
 
-%% 
-%%
-init_per_group(_, Config) ->
-   Config.
-
-end_per_group(_, _Config) ->
-   ok.
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 
 json_string(_) ->
    [{

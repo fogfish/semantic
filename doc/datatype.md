@@ -1,18 +1,35 @@
 # Data Types
 
+Knowledge statements contain scalar objects -- literals. Literals are either language-tagged string rdf:langString or type-safe values containing a reference to data-type (e.g. xsd:string). This section defines rules how semantic data types are serialized to Erlang native formats.
 
 ## Primitive Data Types
 
 Knowledge statements contain scalar objects -- literals. Literals are either language-tagged string `rdf:langString` or _type-safe_ values containing a reference to data-type (e.g. `xsd:string`). This section defines data-types supported by the library, its mapping to Erlang native types and relation to existed schema(s) and ontologies.  
 
+### URI / IRI
+
+The data type represents a Uniform Resource Identifier / Internationalized Resource Identifier. Used to uniquely identify concept, objects, etc.
+
+Lang | Data type
+---  | ---
+Erlang | `-type {iri, uri()} | {iri, prefix(), suffix()}.`
+Semantic | `?XSD_ANYURI`
+Text | `<uri>`
+|| `prefix:suffix`
+RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#string"
+
 
 ### binary
 
-The binary data-type represents character strings in knowledge statements. The language strings are annotated with corresponding tag.
+The binary data-type represents character strings in knowledge statements. The language strings are annotated with corresponding language tag.
 
 Lang | Data type
 ---  | ---
 Erlang | `-type binary().`
+Semantic | `?XSD_STRING`
+Text | `"string"`
+|| `"string"^^xsd:string`
+|| `"string"@en`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#string"
 
 
@@ -23,12 +40,18 @@ The library derives an arbitrary-precision Integers from Erlang (only limited by
 Lang | Data type
 ---  | ---
 Erlang | `-type integer().`
+Semantic | `?XSD_INTEGER`
+|| `?XSD_LONG`
+|| `?XSD_INT`
+|| `?XSD_SHORT`
+|| `?XSD_BYTE`
+Text | `10`
+|| `"10"^^xsd:integer`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#integer"
-   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#long"
-   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#int"
-   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#short"
-   || xmlns:xsd="http://www.w3.org/2001/XMLSchema#byte"
-
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#long"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#int"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#short"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#byte"
 
 
 ### float
@@ -38,10 +61,14 @@ The value is the IEEE 754 double-precision 64-bit floating point type.
 Lang | Data type
 ---  | ---
 Erlang | `-type float().`
+Semantic | `?XSD_DECIMAL`
+|| `?XSD_FLOAT`
+|| `?XSD_DOUBLE`
+Text | `10.1`
+|| `"10.1"^^xsd:decimal`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#decimal"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#float"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#double"
-
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#float"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#double"
 
 
 ### boolean
@@ -50,56 +77,80 @@ The value is either true or false, representing a logic values
 
 Lang | Data type
 ---  | ---
-Erlang | `-type true | false.`
+Erlang | `-type true \| false.`
+Semantic | `?XSD_BOOLEAN`
+Text | `true | false`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#boolean"
-
-
 
 
 ### datetime
 
-The date-time value is closely related to calendar dates and times described by ISO 8601, covering AD and BC eras. Erlang native date format is triple of integers giving micro-seconds precision (see tempus interface). The external representation is ISO 8601. 
+The date-time value is closely related to calendar dates and times described by ISO 8601, covering AD and BC eras. Erlang native date format is triple of integers giving micro-seconds precision. The external representation is ISO 8601. XSD defines set of recursive data-types. These types are also translated to native format - microseconds from beginning of epoch 1970-01-01. The library intentionally uses same type for data time and recursive formats, it leaves resolution of predicate semantic to application using domain specific schema.
+
 
 Lang | Data type
 ---  | ---
 Erlang | `-type {integer(), integer(), integer()}.`
+Semantic | `?XSD_DATETIME`
+|| `?XSD_DATE`
+|| `?XSD_TIME`
+|| `?XSD_YEARMONTH`
+|| `?XSD_YEAR`
+|| `?XSD_MONTHDAY`
+|| `?XSD_MONTH`
+|| `?XSD_DAY`
+Text | ISO8601
+|| `2007-04-05T14:30:00Z`
+|| `14:30:00Z`
+|| `2007-04`
+|| `--04-05`
+|| `2007`
+|| `04`
+|| `05`
 RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#dateTime"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#date"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#time"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYearMonth"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYear"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#date"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#time"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYearMonth"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYear"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonth"
+|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#gDay"
 
 
 Note that library uses same native format to manipulate with:
 * _date_ represent the beginning of each date, implicitly set time to '00:00:00'
 * _time_ represents an instant of time that recurs every day. It is counted as number of microseconds from beginning of epoch 1970-01-01.
 * _gYearMonth_ represents a specific Gregorian month in a specific year, implicitly set time to beginning of month first day at '00:00:00'.
+* _gMonthDay_ represents a Gregorian date that recurs, specifically a day of the year. It is counted as number of months and days from beginning of epoch 1970-01-01.
 * _gYear_ represents a Gregorian calendar year, implicitly set time to beginning of year first month, first day at '00:00:00'.
+* _gMonth_ is a Gregorian month that recurs every year.
+* _gDay_ is a Gregorian day that recurs, specifically a day of the month.
 
 
-### recursive date time
+### Geo Point
 
-XSD defines set of recursive data-types. They are not yet natively supported by library and translated as strings
-
-Lang | Data type
----  | ---
-Erlang | `-type binary().`
-RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonth"
-    | xmlns:xsd="http://www.w3.org/2001/XMLSchema#gDay"
-
-
-### geo
-
-The geographical coordinates are hashed using GeoHash, ensuring 3.7cm x 1.8cm precision. 
-`georss:hash` is encoded as binary, `georss:point` is tuple of floats.
-
+The geographical coordinates are encoded using either GeoHash or latitude/longitude pair. GeoHash is encoded using `georss:hash` that ensures precision about 3.7cm x 1.8cm. The latitude/longitude pair is encoded `georss:point` as tuple of floats.
 
 Lang | Data type
 ---  | ---
 Erlang | `-type binary() | {lat(), lng()}.`
-RDF | xmlns:xsd="http://www.georss.org/georss/point"
-    | xmlns:xsd="http://www.georss.org/georss/hash"
+Semantic | `?GEORSS_HASH`
+|| `?GEORSS_POINT`
+Text | ueh6xc
+|| 25.7,62.1
+RDF | xmlns:georss="http://www.georss.org/georss/point"
+|| xmlns:georss="http://www.georss.org/georss/hash"
+
+### GeoJson
+
+The data type facilitates operations with geospatial data as defined by https://tools.ietf.org/html/rfc7946
+
+Lang | Data type
+---  | ---
+Erlang | `-type #{<<"type">> => _, <<"coordinates">> => _}.`
+Semantic | `?GEORSS_JSON`
+Text | (type: ..., coordinates: ...)
+RDF | xmlns:georss="http://www.georss.org/georss/json"
 
 
 ### not supported 

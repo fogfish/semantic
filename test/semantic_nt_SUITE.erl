@@ -28,16 +28,12 @@
    spo_stream/1
 ]).
 
-all() ->
-   [
-      spo_with_uri,
-      spo_with_blanknodes,
-      spo_with_lit,
-      spo_with_lang,
-      spo_with_type,
-      spo_chunked_input,
-      spo_with_comment,
-      spo_stream
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
 %%%----------------------------------------------------------------------------   
