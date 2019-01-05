@@ -35,6 +35,13 @@ typeof(X) when is_float(X) -> ?XSD_DECIMAL;
 typeof(true) -> ?XSD_BOOLEAN;
 typeof(false) -> ?XSD_BOOLEAN;
 typeof({A, B, C}) when is_integer(A), is_integer(B), is_integer(C) -> ?XSD_DATETIME;
+typeof({{Y, 0, 0}, {0, 0, 0}}) when is_integer(Y), Y > 0 -> ?XSD_YEAR;
+typeof({{0, M, 0}, {0, 0, 0}}) when is_integer(M), M > 0 -> ?XSD_MONTH;
+typeof({{0, 0, D}, {0, 0, 0}}) when is_integer(D), D > 0 -> ?XSD_DAY;
+typeof({{Y, M, 0}, {0, 0, 0}}) when is_integer(Y), Y > 0, is_integer(M), M > 0 -> ?XSD_YEARMONTH;
+typeof({{0, M, D}, {0, 0, 0}}) when is_integer(M), M > 0, is_integer(D), D > 0 -> ?XSD_MONTHDAY;
+typeof({{Y, M, D}, {0, 0, 0}}) when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 -> ?XSD_DATE;
+typeof({{0, 0, 0}, {T, M, S}}) when is_integer(T), is_integer(M), is_integer(S) -> ?XSD_TIME;
 typeof({A, B}) when is_float(A), is_float(B) -> ?GEORSS_POINT;
 typeof(#{<<"type">> := _, <<"coordinates">> := _}) -> ?GEORSS_JSON;
 typeof(#{}) -> ?RDF_MAP;
@@ -64,7 +71,7 @@ native_type(?XSD_DOUBLE) -> float;
 
 native_type(?XSD_BOOLEAN) -> boolean;
 
-native_type(?XSD_DATETIME) -> datetime;
+native_type(?XSD_DATETIME) -> timestamp;
 native_type(?XSD_DATE) -> datetime;
 native_type(?XSD_TIME) -> datetime;
 native_type(?XSD_YEARMONTH) -> datetime;

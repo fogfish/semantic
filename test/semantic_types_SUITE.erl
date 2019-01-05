@@ -9,6 +9,13 @@
 ,  xsd_decimal/1
 ,  xsd_boolean/1
 ,  xsd_datetime/1
+,  xsd_date/1
+,  xsd_time/1
+,  xsd_yearmonth/1
+,  xsd_monthday/1
+,  xsd_year/1
+,  xsd_month/1
+,  xsd_day/1
 ,  georss_point/1
 ,  georss_hash/1
 ,  georss_json/1
@@ -55,15 +62,44 @@ xsd_boolean(_) ->
    boolean = semantic:native( ?fact({?XSD_BOOLEAN, true}) ).
 
 xsd_datetime(_) ->
-   ?XSD_DATETIME = semantic:typeof(os:timestamp()),
-   datetime = semantic:native( ?fact({?XSD_DATETIME, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_DATE, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_TIME, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_YEARMONTH, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_YEAR, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_MONTHDAY, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_MONTH, {0,0,0}}) ),
-   datetime = semantic:native( ?fact({?XSD_DAY, {0,0,0}}) ).
+   T = os:timestamp(),
+   ?XSD_DATETIME = semantic:typeof(T),
+   timestamp = semantic:native( ?fact({?XSD_DATETIME, T}) ).
+
+xsd_date(_) ->
+   T = {{1970, 1, 1}, {0, 0, 0}},
+   ?XSD_DATE = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_DATE, T}) ).
+
+xsd_time(_) ->
+   T = {{0, 0, 0}, {12, 40, 20}},
+   ?XSD_TIME = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_TIME, T}) ).
+
+xsd_yearmonth(_) ->
+   T = {{1970, 1, 0}, {0, 0, 0}},
+   ?XSD_YEARMONTH = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_YEARMONTH, T}) ).
+
+xsd_monthday(_) ->
+   T = {{0, 1, 12}, {0, 0, 0}},
+   ?XSD_MONTHDAY = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_MONTHDAY, T}) ).
+
+xsd_year(_) ->
+   T = {{1970, 0, 0}, {0, 0, 0}},
+   ?XSD_YEAR = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_YEAR, T}) ).
+
+xsd_month(_) ->
+   T = {{0, 10, 0}, {0, 0, 0}},
+   ?XSD_MONTH = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_MONTH, T}) ).
+
+xsd_day(_) ->
+   T = {{0, 0, 10}, {0, 0, 0}},
+   ?XSD_DAY = semantic:typeof(T),
+   datetime = semantic:native( ?fact({?XSD_DAY, T}) ).
 
 georss_point(_) ->
    ?GEORSS_POINT = semantic:typeof({1.0, 1.0}),

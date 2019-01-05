@@ -85,14 +85,24 @@ RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#boolean"
 
 ### datetime
 
-The date-time value is closely related to calendar dates and times described by ISO 8601, covering AD and BC eras. Erlang native date format is triple of integers giving micro-seconds precision. The external representation is ISO 8601. XSD defines set of recursive data-types. These types are also translated to native format - microseconds from beginning of epoch 1970-01-01. The library intentionally uses same type for data time and recursive formats, it leaves resolution of predicate semantic to application using domain specific schema.
-
+The date-time value is closely related to calendar dates and times described by ISO 8601, covering AD and BC eras. Erlang native date format is triple of integers giving micro-seconds precision. The external representation is ISO 8601.
 
 Lang | Data type
 ---  | ---
 Erlang | `-type {integer(), integer(), integer()}.`
 Semantic | `?XSD_DATETIME`
-|| `?XSD_DATE`
+Text | ISO8601
+|| `2007-04-05T14:30:00Z`
+RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#dateTime"
+
+### recursive date/times
+
+ XSD defines set of recursive data-types. These types are also translated to native datetime format.  
+
+Lang | Data type
+---  | ---
+Erlang | `-type {{integer(), integer(), integer()}, {integer(), integer(), integer()}}.`
+Semantic | `?XSD_DATE`
 || `?XSD_TIME`
 || `?XSD_YEARMONTH`
 || `?XSD_YEAR`
@@ -100,31 +110,20 @@ Semantic | `?XSD_DATETIME`
 || `?XSD_MONTH`
 || `?XSD_DAY`
 Text | ISO8601
-|| `2007-04-05T14:30:00Z`
+|| `2007-04-05`
 || `14:30:00Z`
 || `2007-04`
 || `--04-05`
 || `2007`
 || `04`
 || `05`
-RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#dateTime"
-|| xmlns:xsd="http://www.w3.org/2001/XMLSchema#date"
+RDF | xmlns:xsd="http://www.w3.org/2001/XMLSchema#date"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#time"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYearMonth"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#gYear"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonthDay"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#gMonth"
 || xmlns:xsd="http://www.w3.org/2001/XMLSchema#gDay"
-
-
-Note that library uses same native format to manipulate with:
-* _date_ represent the beginning of each date, implicitly set time to '00:00:00'
-* _time_ represents an instant of time that recurs every day. It is counted as number of microseconds from beginning of epoch 1970-01-01.
-* _gYearMonth_ represents a specific Gregorian month in a specific year, implicitly set time to beginning of month first day at '00:00:00'.
-* _gMonthDay_ represents a Gregorian date that recurs, specifically a day of the year. It is counted as number of months and days from beginning of epoch 1970-01-01.
-* _gYear_ represents a Gregorian calendar year, implicitly set time to beginning of year first month, first day at '00:00:00'.
-* _gMonth_ is a Gregorian month that recurs every year.
-* _gDay_ is a Gregorian day that recurs, specifically a day of the month.
 
 
 ### Geo Point

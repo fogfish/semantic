@@ -115,7 +115,7 @@ spo_with_datetime(_Config) ->
       o := {0, 0, 0},
       type := {iri, <<"xsd">>, <<"dateTime">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
-   datetime = semantic:native(T).
+   timestamp = semantic:native(T).
 
 spo_with_geopoint(_Config) ->
    A = <<"<http://example.org/a> <http://www.georss.org/georss/point> \"64.0 -150.0\" .\n">>,
