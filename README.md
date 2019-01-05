@@ -3,6 +3,7 @@
 Semantic Web ToolKit for Erlang applications
 
 [![Build Status](https://secure.travis-ci.org/fogfish/semantic.svg?branch=master)](http://travis-ci.org/fogfish/semantic)
+[![Coverage Status](https://coveralls.io/repos/github/fogfish/semantic/badge.svg?branch=master)](https://coveralls.io/github/fogfish/semantic?branch=master) 
 
 ## Inspiration
 
