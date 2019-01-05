@@ -25,8 +25,15 @@
    json_true/1,
    json_false/1,
 
+   json_id/1,
+   jsonld_id/1,
+   rdf_id/1,
    jsonld_anyuri/1,
-   jsonld_string/1
+   jsonld_string/1,
+   jsonld_strings/1,
+   jsonld_subst_compact_predicate/1,
+   jsonld_subst_absolute_predicate/1,
+   jsonld_subst_typed_predicate/1
 ]).
 
 all() -> 
@@ -69,7 +76,7 @@ json_double(_) ->
    [{
       {iri, <<"http://dbpedia.org/resource/a">>},
       {iri, <<"key">>},
-      {?XSD_DOUBLE, 1.0}
+      {?XSD_DECIMAL, 1.0}
    }] = semantic:jsonld(#{
       <<"@id">> => <<"http://dbpedia.org/resource/a">>,
       <<"key">> => 1.0
@@ -96,6 +103,35 @@ json_false(_) ->
    }).
 
 
+json_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
+
+jsonld_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
+
+rdf_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"rdf:id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
 
 jsonld_anyuri(_) ->
    [{
@@ -120,5 +156,68 @@ jsonld_string(_) ->
       <<"key">> => <<"test">>,
       <<"@context">> => #{
          <<"key">> => #{<<"@type">> => <<"xsd:string">>}
+      }
+   }).
+
+jsonld_strings(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"a">>}
+   },
+   {
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"b">>}
+   },
+   {
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"c">>}
+   }
+   ] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => [<<"a">>, <<"b">>, <<"c">>],
+      <<"@context">> => #{
+         <<"key">> => #{<<"@type">> => <<"xsd:string">>}
+      }
+   }).
+
+jsonld_subst_compact_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"foaf:name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => <<"foaf:name">>
+      }
+   }).
+
+jsonld_subst_absolute_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => <<"name">>
+      }
+   }).
+
+jsonld_subst_typed_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"foaf:name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => #{<<"@type">> => <<"xsd:string">>, <<"@id">> => <<"foaf:name">>}
       }
    }).

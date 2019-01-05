@@ -29,7 +29,7 @@
    typed/1,
    typeof/1,
    native/1,
-   deduct/1,
+   schema/1,
    nt/1,
    jsonld/1,
    fold/1
@@ -94,7 +94,7 @@
 
 %%%------------------------------------------------------------------
 %%%
-%%% semantic public interface
+%%% semantic toolkit interface
 %%%
 %%%------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ absolute({iri, Prefix, Suffix}) ->
          {iri, <<Absolute/binary, Suffix/binary>>}
    end;
 absolute(IRI) ->
-   {iri, scalar:s(IRI)}.
+   {iri, typecast:s(IRI)}.
 
 
 %%
@@ -171,11 +171,36 @@ native(Fact) ->
 
 %%
 %% deduct schema of knowledge statements using actual knowledge statements
--spec deduct( heap(spock()) ) -> heap(_).
+-spec schema( heap(spock()) ) -> heap(_).
 
-deduct(Facts) ->
-   semantic_schema:deduct(Facts).
+schema(Facts) ->
+   gb_sets:to_list(
+      semantic_heap:fold(fun schema/2, gb_sets:new(), Facts)
+   ).
 
+schema(#{p := P, type := Type}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   {iri, _, _} = IsA = semantic:compact(Type),
+   gb_sets:union(gb_sets:from_list([{IRI, IsA}]), Set);
+
+schema(#{p := P}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   gb_sets:union(gb_sets:from_list([{IRI, ?XSD_ANYURI}]), Set);
+
+schema({{iri, _}, {iri, _} = P, {iri, _}}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   gb_sets:union(gb_sets:from_list([{IRI, ?XSD_ANYURI}]), Set);
+
+schema({{iri, _}, {iri, _} = P, {Type, _}}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   {iri, _, _} = IsA = semantic:compact(Type),
+   gb_sets:union(gb_sets:from_list([{IRI, IsA}]), Set).
+
+%%%------------------------------------------------------------------
+%%%
+%%% semantic codec
+%%%
+%%%------------------------------------------------------------------
 
 %%
 %% build stream of knowledge statements from n-triples.
