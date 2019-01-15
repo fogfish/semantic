@@ -22,8 +22,13 @@
 -export([
    typeof/1
 ,  native/1
+,  to_json/1
+,  to_text/1
 ,  compile/1
 ]).
+
+-define(UNX_EPOCH, 62167219200).
+-define(BASE,          1000000).
 
 %%
 %% deduct semantic type from Erlang native term
@@ -90,6 +95,144 @@ native_type(?RDF_SEQ) -> tuple;
 
 native_type({iri, ?LANG, Lang}) -> Lang.
 
+%%
+%% maps Erlang native term to json-format
+to_json({iri, IRI}) -> 
+   IRI;
+to_json({iri, Prefix, Suffix}) -> 
+   <<Prefix/binary, $:, Suffix/binary>>;
+to_json(Lit)
+ when is_binary(Lit) -> 
+   Lit;
+to_json(Lit)
+ when is_integer(Lit) ->
+   Lit;
+to_json(Lit)
+ when is_float(Lit) ->
+   Lit;
+to_json(true) ->
+   true;
+to_json(false) ->
+   false;
+to_json({A, B, C})
+ when is_integer(A), is_integer(B), is_integer(C) ->
+   Seconds = A * ?BASE + B,
+   {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
+   <<
+      (typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary, $T, 
+      (datetime(T))/binary, $:, (datetime(N))/binary, $:, (datetime(S))/binary, $Z
+   >>;
+to_json({{Y, 0, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0 ->
+   Y;
+to_json({{0, M, 0}, {0, 0, 0}})
+ when is_integer(M), M > 0 ->
+   M;
+to_json({{0, 0, D}, {0, 0, 0}})
+ when is_integer(D), D > 0 ->
+   D;
+to_json({{Y, M, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0 ->
+   <<(typecast:s(Y))/binary, $-, (datetime(M))/binary>>;
+to_json({{0, M, D}, {0, 0, 0}})
+ when is_integer(M), M > 0, is_integer(D), D > 0 ->
+   <<$-, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
+to_json({{Y, M, D}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 ->
+ <<(typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
+to_json({{0, 0, 0}, {T, M, S}})
+ when is_integer(T), is_integer(M), is_integer(S) ->
+   <<(datetime(T))/binary, $:, (datetime(M))/binary, $:, (datetime(S))/binary, $Z>>;
+to_json({A, B})
+ when is_float(A), is_float(B) ->
+   <<(typecast:s(A))/binary, $,, (typecast:s(B))/binary>>;
+to_json(#{<<"type">> := _, <<"coordinates">> := _} = GeoJson) ->
+   GeoJson;
+to_json(#{} = Lit) ->
+   maps:map(fun(_, X) -> to_json(X) end, Lit);
+to_json(Lit)
+ when is_list(Lit) ->
+   [to_json(X) || X <- Lit];
+to_json(Lit) when is_tuple(Lit) -> 
+   [to_json(X) || X <- tuple_to_list(Lit)].
+
+
+%%
+%% maps Erlang native term to textual-format
+to_text({iri, IRI}) -> 
+   <<$<, IRI/binary, $>>>;
+to_text({iri, Prefix, Suffix}) -> 
+   <<Prefix/binary, $:, Suffix/binary>>;
+to_text(Lit)
+ when is_binary(Lit) -> 
+   <<$", Lit/binary, $">>;
+to_text(Lit)
+ when is_integer(Lit) ->
+   typecast:s(Lit);
+to_text(Lit)
+ when is_float(Lit) ->
+   typecast:s(Lit);
+to_text(true) ->
+   <<"true">>;
+to_text(false) ->
+   <<"false">>;
+to_text({A, B, C})
+ when is_integer(A), is_integer(B), is_integer(C) ->
+   Seconds = A * ?BASE + B,
+   {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
+   <<
+      (typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary, $T, 
+      (datetime(T))/binary, $:, (datetime(N))/binary, $:, (datetime(S))/binary, $Z
+   >>;
+to_text({{Y, 0, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0 ->
+   typecast:s(Y);
+to_text({{0, M, 0}, {0, 0, 0}})
+ when is_integer(M), M > 0 ->
+   datetime(M);
+to_text({{0, 0, D}, {0, 0, 0}})
+ when is_integer(D), D > 0 ->
+   datetime(D);
+to_text({{Y, M, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0 ->
+   <<(typecast:s(Y))/binary, $-, (datetime(M))/binary>>;
+to_text({{0, M, D}, {0, 0, 0}})
+ when is_integer(M), M > 0, is_integer(D), D > 0 ->
+   <<$-, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
+to_text({{Y, M, D}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 ->
+ <<(typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
+to_text({{0, 0, 0}, {T, M, S}})
+ when is_integer(T), is_integer(M), is_integer(S) ->
+   <<(datetime(T))/binary, $:, (datetime(M))/binary, $:, (datetime(S))/binary, $Z>>;
+to_text({A, B})
+ when is_float(A), is_float(B) ->
+   <<(typecast:s(A))/binary, $,, (typecast:s(B))/binary>>;
+to_text(#{<<"type">> := Type, <<"coordinates">> := Coordinates}) ->
+   typecast:s([${,
+      <<"type:">>, to_text(Type), $,,
+      <<"coordinates:">>, to_text(Coordinates),
+   $}]);
+to_text(#{} = Lit) ->
+   [{HKey, HVal} | Tail] = maps:to_list(Lit),
+   typecast:s([${,
+      typecast:s(HKey), $:, to_text(HVal),
+      [[$,, typecast:s(TKey), $:, to_text(TVal)] || {TKey, TVal} <- Tail],
+   $}]);
+to_text(Lit)
+ when is_list(Lit) ->
+   typecast:s([$[,
+      to_text(hd(Lit)),
+      [ [$,,to_text(X)] || X <- tl(Lit)],
+   $]]);
+to_text(Lit) when is_tuple(Lit) ->
+   [H | T] = tuple_to_list(Lit),
+   typecast:s([$(,to_text(H),[[$,,to_text(X)] || X <- H],$)]).
+
+datetime(X) when X > 9 -> typecast:s(X);
+datetime(X) -> <<$0, (typecast:s(X))/binary>>.
+
+%% TODO: to_seq
 
 %%
 %% compile abstract syntax knowledge statement to type-safe once

@@ -29,6 +29,8 @@
    typed/1,
    typeof/1,
    native/1,
+   to_json/1,
+   to_text/1,
    schema/1,
    nt/1,
    jsonld/1,
@@ -73,6 +75,7 @@
                   | xsd_decimal()
                   | xsd_boolean()
                   | xsd_datetime()
+                  | xsd_date()
                   | georss_point()
                   | georss_hash()
                   | georss_json()
@@ -83,6 +86,7 @@
 -type xsd_decimal()  :: float().
 -type xsd_boolean()  :: boolean().
 -type xsd_datetime() :: {integer(), integer(), integer()}.
+-type xsd_date()     :: {{integer(), integer(), integer()}, {integer(), integer(), integer()}}.
 -type georss_point() :: {lat(), lng()} | binary().
 -type lat()          :: float().
 -type lng()          :: float().
@@ -168,6 +172,19 @@ typeof(Term) ->
 native(Fact) ->
    semantic_typed:native(Fact).
 
+%%
+%% maps Erlang native term to json-format
+-spec to_json(lit()) -> binary().
+
+to_json(Lit) ->
+   semantic_typed:to_json(Lit).
+
+%%
+%% maps Erlang native term to json-format
+-spec to_text(lit()) -> binary().
+
+to_text(Lit) ->
+   semantic_typed:to_text(Lit).
 
 %%
 %% deduct schema of knowledge statements using actual knowledge statements
