@@ -244,35 +244,35 @@ compile({{iri, _} = S, {iri, _} = P, O}) ->
 %%
 %% type-safe decode
 decode(?XSD_STRING = Type, O, Fact) ->
-   Fact#{o => O, type => Type};
+   Fact#{o => typecast:s(O), type => Type};
 
 %%
 decode(?XSD_INTEGER = Type, O, Fact) -> 
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => typecast:i(O), type => Type};
 
 %%
 decode(?XSD_BYTE = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => typecast:i(O), type => Type};
 
 decode(?XSD_SHORT = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => typecast:i(O), type => Type};
 
 decode(?XSD_INT = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => typecast:i(O), type => Type};
 
 decode(?XSD_LONG = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => typecast:i(O), type => Type};
 
 
 %%
 decode(?XSD_DECIMAL = Type, O, Fact) ->
-   Fact#{o => scalar:f(O), type => Type};
+   Fact#{o => typecast:f(O), type => Type};
 
 decode(?XSD_FLOAT = Type, O, Fact) ->
-   Fact#{o => scalar:f(O), type => Type};
+   Fact#{o => typecast:f(O), type => Type};
 
 decode(?XSD_DOUBLE = Type, O, Fact) ->
-   Fact#{o => scalar:f(O), type => Type};
+   Fact#{o => typecast:f(O), type => Type};
 
 %%
 decode(?XSD_BOOLEAN = Type, <<"true">>, Fact) ->
@@ -289,28 +289,28 @@ decode(?XSD_BOOLEAN = Type, <<"0">>, Fact) ->
 
 %%
 decode(?XSD_DATETIME = Type, O, Fact) ->
-   Fact#{o => tempus:iso8601(O), type => Type};
+   Fact#{o => binary_to_datetime(typecast:s(O)), type => Type};
 
 decode(?XSD_DATE = Type, O, Fact) ->
-   Fact#{o => tempus:iso8601(O), type => Type};
+   Fact#{o => binary_to_date(typecast:s(O)), type => Type};
 
 decode(?XSD_TIME = Type, O, Fact) ->
-   Fact#{o => tempus:iso8601(O), type => Type};
+   Fact#{o => binary_to_time(typecast:s(O)), type => Type};
 
 decode(?XSD_YEARMONTH = Type, O, Fact) ->
-   Fact#{o => tempus:iso8601(O), type => Type};
+   Fact#{o => binary_to_yearmonth(typecast:s(O)), type => Type};
 
 decode(?XSD_YEAR = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => binary_to_year(typecast:s(O)), type => Type};
 
 decode(?XSD_MONTHDAY = Type, O, Fact) ->
-   Fact#{o => O, type => Type};
+   Fact#{o => binary_to_monthday(typecast:s(O)), type => Type};
 
 decode(?XSD_MONTH = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => binary_to_month(typecast:s(O)), type => Type};
 
 decode(?XSD_DAY = Type, O, Fact) ->
-   Fact#{o => scalar:i(O), type => Type};
+   Fact#{o => binary_to_day(typecast:s(O)), type => Type};
 
 %%
 decode(?GEORSS_HASH = Type, O, Fact) ->
@@ -333,11 +333,11 @@ decode(<<"false">>, Fact) ->
    Fact#{o => false, type => ?XSD_BOOLEAN};
 
 decode(LatLng, #{p := {iri, <<"georss">>, <<"point">>}} = Fact) ->
-   [Lat, Lng] = binary:split(LatLng, <<$ >>), 
+   [Lat, Lng] = binary:split(LatLng, [<<$ >>, <<$,>>]), 
    Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => ?GEORSS_POINT}; 
 
 decode(LatLng, #{p := {iri, <<"http://www.georss.org/georss/point">>}} = Fact) ->
-   [Lat, Lng] = binary:split(LatLng, <<$ >>), 
+   [Lat, Lng] = binary:split(LatLng, [<<$ >>, <<$,>>]), 
    Fact#{o => {scalar:f(Lat), scalar:f(Lng)}, type => ?GEORSS_POINT};
 
 decode(O, Fact) ->
@@ -404,10 +404,92 @@ datetime_to_binary({{Y, M, D}, {T, N, S}})
       (prefixz(T))/binary, $:, (prefixz(N))/binary, $:, (prefixz(S))/binary, $Z
    >>.
 
-
 prefixz(X)
  when X > 9 -> 
    typecast:s(X);
 prefixz(X) ->
    <<$0, (typecast:s(X))/binary>>.
+
+%%
+%%
+binary_to_datetime(<<$-, Y:4/binary, $-, M:2/binary, $-, D:2/binary, $T, T:2/binary, $:, N:2/binary, $:, S:2/binary, $Z>>) ->
+   Sec = -1 * calendar:datetime_to_gregorian_seconds({
+      {-1 * typecast:i(Y), typecast:i(M), typecast:i(D)},
+      {typecast:i(T), typecast:i(N), typecast:i(S)}
+   }) - ?UNX_EPOCH,
+   {Sec div ?BASE, Sec rem ?BASE, 0};
+
+binary_to_datetime(<<$-, Y:4/binary, M:2/binary, D:2/binary, $T, T:2/binary, N:2/binary, S:2/binary, $Z>>) ->
+   Sec = -1 * calendar:datetime_to_gregorian_seconds({
+      {-1 * typecast:i(Y), typecast:i(M), typecast:i(D)},
+      {typecast:i(T), typecast:i(N), typecast:i(S)}
+   }) - ?UNX_EPOCH,
+   {Sec div ?BASE, Sec rem ?BASE, 0};
+
+binary_to_datetime(<<Y:4/binary, $-, M:2/binary, $-, D:2/binary, $T, T:2/binary, $:, N:2/binary, $:, S:2/binary, $Z>>) ->
+   Sec = calendar:datetime_to_gregorian_seconds({
+      {typecast:i(Y), typecast:i(M), typecast:i(D)},
+      {typecast:i(T), typecast:i(N), typecast:i(S)}
+   }) - ?UNX_EPOCH,
+   {Sec div ?BASE, Sec rem ?BASE, 0};
+
+binary_to_datetime(<<Y:4/binary, M:2/binary, D:2/binary, $T, T:2/binary, N:2/binary, S:2/binary, $Z>>) ->
+   Sec = calendar:datetime_to_gregorian_seconds({
+      {typecast:i(Y), typecast:i(M), typecast:i(D)},
+      {typecast:i(T), typecast:i(N), typecast:i(S)}
+   }) - ?UNX_EPOCH,
+   {Sec div ?BASE, Sec rem ?BASE, 0}.
+
+%%
+%%
+binary_to_date(<<$-, Y:4/binary, $-, M:2/binary, $-, D:2/binary>>) ->
+   {{-1 * typecast:i(Y), typecast:i(M), typecast:i(D)}, {0, 0, 0}};
+
+binary_to_date(<<$-, Y:4/binary, M:2/binary, D:2/binary>>) ->
+   {{-1 * typecast:i(Y), typecast:i(M), typecast:i(D)}, {0, 0, 0}};
+
+binary_to_date(<<Y:4/binary, $-, M:2/binary, $-, D:2/binary>>) ->
+   {{typecast:i(Y), typecast:i(M), typecast:i(D)}, {0, 0, 0}};
+
+binary_to_date(<<Y:4/binary, M:2/binary, D:2/binary>>) ->
+   {{typecast:i(Y), typecast:i(M), typecast:i(D)}, {0, 0, 0}}.
+
+%%
+%%
+binary_to_time(<<T:2/binary, $:,  N:2/binary, $:, S:2/binary, $Z>>) ->
+   {{0, 0, 0}, {typecast:i(T), typecast:i(N), typecast:i(S)}};
+
+binary_to_time(<<T:2/binary, N:2/binary, S:2/binary, $Z>>) ->
+   {{0, 0, 0}, {typecast:i(T), typecast:i(N), typecast:i(S)}}.
+
+%%
+%%
+binary_to_yearmonth(<<$-, Y:4/binary, $-, M:2/binary>>) ->
+   {{-1 * typecast:i(Y), typecast:i(M), 0}, {0, 0, 0}};
+
+binary_to_yearmonth(<<Y:4/binary, $-, M:2/binary>>) ->
+   {{typecast:i(Y), typecast:i(M), 0}, {0, 0, 0}}.
+
+%%
+%%
+binary_to_year(<<$-, Y:4/binary>>) ->
+   {{-1 * typecast:i(Y), 0, 0}, {0, 0, 0}};
+
+binary_to_year(<<Y:4/binary>>) ->
+   {{typecast:i(Y), 0, 0}, {0, 0, 0}}.
+
+%%
+%%
+binary_to_monthday(<<$-, $-, M:4/binary, $-, D:2/binary>>) ->
+   {{0, typecast:i(M), typecast:i(D)}, {0, 0, 0}}.
+
+%%
+%%
+binary_to_month(<<M:2/binary>>) ->
+   {{0, typecast:i(M), 0}, {0, 0, 0}}.
+
+%%
+%%
+binary_to_day(<<D:2/binary>>) ->
+   {{0, 0, typecast:i(D)}, {0, 0, 0}}.
 

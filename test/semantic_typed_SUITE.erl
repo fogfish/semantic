@@ -16,15 +16,19 @@
 -module(semantic_typed_SUITE).
 -include_lib("common_test/include/ct.hrl").
 
--export([all/0, init_per_suite/1, end_per_suite/1]).
+-export([all/0]).
 -export([
-   spo_with_uri/1,
-   spo_with_string/1,
-   spo_with_lang_string/1,
-   spo_with_integer/1,
-   spo_with_float/1,
-   spo_with_bool/1,
-   spo_with_datetime/1,
+   spo_xsd_anyuri_absolute/1,
+   spo_xsd_string/1,
+   spo_xsd_string_lang/1,
+   spo_xsd_string_implicit/1,
+   spo_xsd_integer/1,
+   spo_xsd_decimal/1,
+   spo_xsd_boolean/1,
+   spo_xsd_datetime/1,
+   spo_xsd_datetime_human/1,
+   spo_xsd_date/1,
+   spo_xsd_date_human/1,
    spo_with_geopoint/1
 ]).
 
@@ -36,15 +40,7 @@ all() ->
       NAry =:= 1
    ].
 
-init_per_suite(Config) ->
-   {ok, _} = semantic:start(),
-   Config.
-
-end_per_suite(_Config) ->
-   ok.
-
-
-spo_with_uri(_Config) ->
+spo_xsd_anyuri_absolute(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> <http://example.org/c> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -55,7 +51,7 @@ spo_with_uri(_Config) ->
    iri = semantic:native(T).
 
 
-spo_with_string(_Config) ->
+spo_xsd_string(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"c\"^^<http://www.w3.org/2001/XMLSchema#string> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -65,7 +61,17 @@ spo_with_string(_Config) ->
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    binary = semantic:native(T).
 
-spo_with_lang_string(_Config) ->
+spo_xsd_string_implicit(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"c\" .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := <<"c">>,
+      type := {iri, <<"xsd">>, <<"string">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   binary = semantic:native(T).
+
+spo_xsd_string_lang(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -76,7 +82,7 @@ spo_with_lang_string(_Config) ->
    <<"en">> = semantic:native(T).
 
 
-spo_with_integer(_Config) ->
+spo_xsd_integer(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -87,7 +93,7 @@ spo_with_integer(_Config) ->
    integer = semantic:native(T).
 
 
-spo_with_float(_Config) ->
+spo_xsd_decimal(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1.0\"^^<http://www.w3.org/2001/XMLSchema#float> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -97,7 +103,7 @@ spo_with_float(_Config) ->
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    float = semantic:native(T).
 
-spo_with_bool(_Config) ->
+spo_xsd_boolean(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -107,7 +113,7 @@ spo_with_bool(_Config) ->
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    boolean = semantic:native(T).
 
-spo_with_datetime(_Config) ->
+spo_xsd_datetime(_Config) ->
    A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"19700101T000000Z\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n">>,
    T = #{
       s := {iri, <<"http://example.org/a">>},
@@ -116,6 +122,38 @@ spo_with_datetime(_Config) ->
       type := {iri, <<"xsd">>, <<"dateTime">>}
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    timestamp = semantic:native(T).
+
+spo_xsd_datetime_human(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1970-01-01T00:00:00Z\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {0, 0, 0},
+      type := {iri, <<"xsd">>, <<"dateTime">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   timestamp = semantic:native(T).
+
+
+spo_xsd_date(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"19700101\"^^<http://www.w3.org/2001/XMLSchema#date> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{1970, 1, 1}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"date">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_date_human(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1970-01-01\"^^<http://www.w3.org/2001/XMLSchema#date> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{1970, 1, 1}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"date">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
 
 spo_with_geopoint(_Config) ->
    A = <<"<http://example.org/a> <http://www.georss.org/georss/point> \"64.0 -150.0\" .\n">>,

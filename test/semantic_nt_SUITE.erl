@@ -18,8 +18,8 @@
 
 -export([all/0]).
 -export([
-   spo_with_uri/1,
-   spo_with_blanknodes/1,
+   spo_xsd_anyuri_absolute/1,
+   spo_xsd_anyuri_blanknodes/1,
    spo_with_lit/1,
    spo_with_lang/1,
    spo_with_type/1,
@@ -42,7 +42,7 @@ all() ->
 %%%
 %%%----------------------------------------------------------------------------   
 
-spo_with_uri(_) ->
+spo_xsd_anyuri_absolute(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> <http://example.org/c> .\n">>,
    {
       [{
@@ -53,7 +53,7 @@ spo_with_uri(_) ->
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
 
-spo_with_blanknodes(_) ->
+spo_xsd_anyuri_blanknodes(_) ->
    A = <<"_:a _:b _:c .\n">>,
    {
       [{

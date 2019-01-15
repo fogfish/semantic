@@ -3,7 +3,8 @@
 
 -export([all/0]).
 -export([
-   xsd_anyuri/1
+   xsd_anyuri_absolute/1
+,  xsd_anyuri_compact/1
 ,  xsd_string/1
 ,  xsd_integer/1
 ,  xsd_decimal/1
@@ -34,8 +35,12 @@ all() ->
 
 -define(fact(X), {{iri, <<"a">>}, {iri, <<"b">>}, X}).
 
-xsd_anyuri(_) ->
+xsd_anyuri_absolute(_) ->
    ?XSD_ANYURI = semantic:typeof({iri, <<"http://example.com">>}),
+   iri = semantic:native( ?fact({iri, <<"c">>}) ).
+
+xsd_anyuri_compact(_) ->
+   ?XSD_ANYURI = semantic:typeof({iri, <<"example">>, <<"a">>}),
    iri = semantic:native( ?fact({iri, <<"c">>}) ).
 
 xsd_string(_) ->
