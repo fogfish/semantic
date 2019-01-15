@@ -57,7 +57,7 @@ typeof(X) when is_tuple(X) -> ?RDF_SEQ.
 %%
 %% Translate semantic type to Erlang native
 native({{iri, _}, {iri, _}, {iri, _}}) -> native_type(?XSD_ANYURI);
-native({{iri, _}, {iri, _}, {Type, O}}) -> native_type(Type);
+native({{iri, _}, {iri, _}, {Type, _}}) -> native_type(Type);
 native(#{s := _, p := _, o := _, type := Type}) -> native_type(Type).
 
 native_type(?XSD_ANYURI) -> iri;
@@ -114,35 +114,12 @@ to_json(true) ->
    true;
 to_json(false) ->
    false;
-to_json({A, B, C})
+to_json({A, B, C} = T)
  when is_integer(A), is_integer(B), is_integer(C) ->
-   Seconds = A * ?BASE + B,
-   {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
-   <<
-      (typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary, $T, 
-      (datetime(T))/binary, $:, (datetime(N))/binary, $:, (datetime(S))/binary, $Z
-   >>;
-to_json({{Y, 0, 0}, {0, 0, 0}})
- when is_integer(Y), Y > 0 ->
-   Y;
-to_json({{0, M, 0}, {0, 0, 0}})
- when is_integer(M), M > 0 ->
-   M;
-to_json({{0, 0, D}, {0, 0, 0}})
- when is_integer(D), D > 0 ->
-   D;
-to_json({{Y, M, 0}, {0, 0, 0}})
- when is_integer(Y), Y > 0, is_integer(M), M > 0 ->
-   <<(typecast:s(Y))/binary, $-, (datetime(M))/binary>>;
-to_json({{0, M, D}, {0, 0, 0}})
- when is_integer(M), M > 0, is_integer(D), D > 0 ->
-   <<$-, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
-to_json({{Y, M, D}, {0, 0, 0}})
- when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 ->
- <<(typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
-to_json({{0, 0, 0}, {T, M, S}})
- when is_integer(T), is_integer(M), is_integer(S) ->
-   <<(datetime(T))/binary, $:, (datetime(M))/binary, $:, (datetime(S))/binary, $Z>>;
+   datetime_to_binary(T);
+to_json({{Y, M, D}, {T, N, S}} = A)
+ when is_integer(Y), is_integer(M), is_integer(D), is_integer(T), is_integer(N), is_integer(S) ->
+   datetime_to_binary(A);
 to_json({A, B})
  when is_float(A), is_float(B) ->
    <<(typecast:s(A))/binary, $,, (typecast:s(B))/binary>>;
@@ -176,35 +153,12 @@ to_text(true) ->
    <<"true">>;
 to_text(false) ->
    <<"false">>;
-to_text({A, B, C})
+to_text({A, B, C} = T)
  when is_integer(A), is_integer(B), is_integer(C) ->
-   Seconds = A * ?BASE + B,
-   {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
-   <<
-      (typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary, $T, 
-      (datetime(T))/binary, $:, (datetime(N))/binary, $:, (datetime(S))/binary, $Z
-   >>;
-to_text({{Y, 0, 0}, {0, 0, 0}})
- when is_integer(Y), Y > 0 ->
-   typecast:s(Y);
-to_text({{0, M, 0}, {0, 0, 0}})
- when is_integer(M), M > 0 ->
-   datetime(M);
-to_text({{0, 0, D}, {0, 0, 0}})
- when is_integer(D), D > 0 ->
-   datetime(D);
-to_text({{Y, M, 0}, {0, 0, 0}})
- when is_integer(Y), Y > 0, is_integer(M), M > 0 ->
-   <<(typecast:s(Y))/binary, $-, (datetime(M))/binary>>;
-to_text({{0, M, D}, {0, 0, 0}})
- when is_integer(M), M > 0, is_integer(D), D > 0 ->
-   <<$-, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
-to_text({{Y, M, D}, {0, 0, 0}})
- when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 ->
- <<(typecast:s(Y))/binary, $-, (datetime(M))/binary, $-, (datetime(D))/binary>>;
-to_text({{0, 0, 0}, {T, M, S}})
- when is_integer(T), is_integer(M), is_integer(S) ->
-   <<(datetime(T))/binary, $:, (datetime(M))/binary, $:, (datetime(S))/binary, $Z>>;
+   datetime_to_binary(T);
+to_text({{Y, M, D}, {T, N, S}} = A)
+ when is_integer(Y), is_integer(M), is_integer(D), is_integer(T), is_integer(N), is_integer(S) ->
+   datetime_to_binary(A);
 to_text({A, B})
  when is_float(A), is_float(B) ->
    <<(typecast:s(A))/binary, $,, (typecast:s(B))/binary>>;
@@ -214,25 +168,25 @@ to_text(#{<<"type">> := Type, <<"coordinates">> := Coordinates}) ->
       <<"coordinates:">>, to_text(Coordinates),
    $}]);
 to_text(#{} = Lit) ->
-   [{HKey, HVal} | Tail] = maps:to_list(Lit),
    typecast:s([${,
-      typecast:s(HKey), $:, to_text(HVal),
-      [[$,, typecast:s(TKey), $:, to_text(TVal)] || {TKey, TVal} <- Tail],
+      lists:join($,,
+         [ [typecast:s(Key), $:, to_text(Val)] || {Key, Val} <- maps:to_list(Lit) ]
+      ),
    $}]);
 to_text(Lit)
  when is_list(Lit) ->
    typecast:s([$[,
-      to_text(hd(Lit)),
-      [ [$,,to_text(X)] || X <- tl(Lit)],
+      lists:join($,,
+         [ to_text(Val) || Val <- Lit ]
+      ),
    $]]);
 to_text(Lit) when is_tuple(Lit) ->
-   [H | T] = tuple_to_list(Lit),
-   typecast:s([$(,to_text(H),[[$,,to_text(X)] || X <- H],$)]).
+   typecast:s([$(,
+      lists:join($,,
+         [ to_text(Val) || Val <- tuple_to_list(Lit) ]
+      ),
+   $)]).
 
-datetime(X) when X > 9 -> typecast:s(X);
-datetime(X) -> <<$0, (typecast:s(X))/binary>>.
-
-%% TODO: to_seq
 
 %%
 %% compile abstract syntax knowledge statement to type-safe once
@@ -403,3 +357,57 @@ get_or_else(undefined, X) ->
    X;
 get_or_else(X, _) ->
    X.
+
+%%
+%% encode datetime to string
+datetime_to_binary({A, B, C})
+ when is_integer(A), is_integer(B), is_integer(C) ->
+   Seconds = A * ?BASE + B,
+   {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
+   <<
+      (typecast:s(Y))/binary, $-, (prefixz(M))/binary, $-, (prefixz(D))/binary, $T, 
+      (prefixz(T))/binary, $:, (prefixz(N))/binary, $:, (prefixz(S))/binary, $Z
+   >>;
+
+datetime_to_binary({{Y, 0, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0 ->
+   typecast:s(Y);
+
+datetime_to_binary({{0, M, 0}, {0, 0, 0}})
+ when is_integer(M), M > 0 ->
+   prefixz(M);
+
+datetime_to_binary({{0, 0, D}, {0, 0, 0}})
+ when is_integer(D), D > 0 ->
+   prefixz(D);
+
+datetime_to_binary({{Y, M, 0}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0 ->
+   <<(typecast:s(Y))/binary, $-, (prefixz(M))/binary>>;
+
+datetime_to_binary({{0, M, D}, {0, 0, 0}})
+ when is_integer(M), M > 0, is_integer(D), D > 0 ->
+   <<$-, $-, (prefixz(M))/binary, $-, (prefixz(D))/binary>>;
+
+datetime_to_binary({{Y, M, D}, {0, 0, 0}})
+ when is_integer(Y), Y > 0, is_integer(M), M > 0, is_integer(D), D > 0 ->
+ <<(typecast:s(Y))/binary, $-, (prefixz(M))/binary, $-, (prefixz(D))/binary>>;
+
+datetime_to_binary({{0, 0, 0}, {T, M, S}})
+ when is_integer(T), is_integer(M), is_integer(S) ->
+   <<(prefixz(T))/binary, $:, (prefixz(M))/binary, $:, (prefixz(S))/binary, $Z>>;
+
+datetime_to_binary({{Y, M, D}, {T, N, S}})
+ when is_integer(Y), is_integer(M), is_integer(D), is_integer(T), is_integer(N), is_integer(S) ->
+   <<
+      (typecast:s(Y))/binary, $-, (prefixz(M))/binary, $-, (prefixz(D))/binary, $T, 
+      (prefixz(T))/binary, $:, (prefixz(N))/binary, $:, (prefixz(S))/binary, $Z
+   >>.
+
+
+prefixz(X)
+ when X > 9 -> 
+   typecast:s(X);
+prefixz(X) ->
+   <<$0, (typecast:s(X))/binary>>.
+

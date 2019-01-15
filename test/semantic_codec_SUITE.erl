@@ -33,6 +33,9 @@
 ,  to_json_xsd_time/1
 ,  to_json_georss_point/1
 ,  to_json_georss_json/1
+,  to_json_rdf_map/1
+,  to_json_rdf_list/1
+,  to_json_rdf_tuple/1
 
 ,  to_text_xsd_anyuri_absolute/1
 ,  to_text_xsd_anyuri_compact/1
@@ -49,6 +52,9 @@
 ,  to_text_xsd_time/1
 ,  to_text_georss_point/1
 ,  to_text_georss_json/1
+,  to_text_rdf_map/1
+,  to_text_rdf_list/1
+,  to_text_rdf_tuple/1
 ]).
 
 all() -> 
@@ -84,13 +90,13 @@ to_json_xsd_datetime(_) ->
    <<"1970-01-01T00:00:00Z">> = semantic:to_json({0, 0, 0}).
 
 to_json_xsd_gyear(_) ->
-   2010 = semantic:to_json({{2010, 0, 0}, {0, 0, 0}}).
+   <<"2010">> = semantic:to_json({{2010, 0, 0}, {0, 0, 0}}).
 
 to_json_xsd_gmonth(_) ->
-   8 = semantic:to_json({{0, 8, 0}, {0, 0, 0}}).
+   <<"08">> = semantic:to_json({{0, 8, 0}, {0, 0, 0}}).
 
 to_json_xsd_gday(_) ->
-   4 = semantic:to_json({{0, 0, 4}, {0, 0, 0}}).
+   <<"04">> = semantic:to_json({{0, 0, 4}, {0, 0, 0}}).
 
 to_json_xsd_yearmonth(_) ->
    <<"2010-08">> = semantic:to_json({{2010, 8, 0}, {0, 0, 0}}).
@@ -114,6 +120,23 @@ to_json_georss_json(_) ->
          <<"coordinates">> => [[ [20.3,60.1] ]]
       }
    ).
+
+to_json_rdf_map(_) ->
+   #{
+      <<"example">> := <<"text">>,
+      <<"a">> := 1 
+   } = semantic:to_json(
+      #{
+         <<"example">> => <<"text">>,
+         <<"a">> => 1
+      }
+   ).
+
+to_json_rdf_list(_) ->
+   [1, 2, 3, 4] = semantic:to_json([1, 2, 3, 4]).
+
+to_json_rdf_tuple(_) ->
+   [1, 2, 3, 4] = semantic:to_json({1, 2, 3, 4}).
 
 %%
 %%
@@ -167,4 +190,18 @@ to_text_georss_json(_) ->
          <<"coordinates">> => [[ [20.3,60.1] ]]
       }
    ).
+
+to_text_rdf_map(_) ->
+   <<"{a:1,example:\"text\"}">> = semantic:to_text(
+      #{
+         <<"example">> => <<"text">>,
+         <<"a">> => 1
+      }
+   ).
+
+to_text_rdf_list(_) ->
+   <<"[1,2,3,4]">> = semantic:to_text([1, 2, 3, 4]).
+
+to_text_rdf_tuple(_) ->
+   <<"(1,2,3,4)">> = semantic:to_text({1, 2, 3, 4}).
 
