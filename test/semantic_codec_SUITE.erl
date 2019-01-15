@@ -31,6 +31,7 @@
 ,  to_json_xsd_yearmonth/1
 ,  to_json_xsd_monthday/1
 ,  to_json_xsd_time/1
+,  to_json_xsd_date/1
 ,  to_json_georss_point/1
 ,  to_json_georss_json/1
 ,  to_json_rdf_map/1
@@ -50,6 +51,7 @@
 ,  to_text_xsd_yearmonth/1
 ,  to_text_xsd_monthday/1
 ,  to_text_xsd_time/1
+,  to_text_xsd_date/1
 ,  to_text_georss_point/1
 ,  to_text_georss_json/1
 ,  to_text_rdf_map/1
@@ -106,6 +108,9 @@ to_json_xsd_monthday(_) ->
 
 to_json_xsd_time(_) ->
    <<"10:01:30Z">> = semantic:to_json({{0, 0, 0}, {10, 1, 30}}).
+
+to_json_xsd_date(_) ->
+   <<"1970-01-01">> = semantic:to_json({{1970, 1, 1}, {0, 0, 0}}).
 
 to_json_georss_point(_) ->
    <<"60.100000000,20.300000000">> = semantic:to_json({60.1,20.3}).
@@ -179,6 +184,9 @@ to_text_xsd_monthday(_) ->
 
 to_text_xsd_time(_) ->
    <<"10:01:30Z">> = semantic:to_text({{0, 0, 0}, {10, 1, 30}}).
+
+to_text_xsd_date(_) ->
+   <<"1970-01-01">> = semantic:to_text({{1970, 1, 1}, {0, 0, 0}}).
 
 to_text_georss_point(_) ->
    <<"60.100000000,20.300000000">> = semantic:to_text({60.1,20.3}).

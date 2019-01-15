@@ -480,7 +480,7 @@ binary_to_year(<<Y:4/binary>>) ->
 
 %%
 %%
-binary_to_monthday(<<$-, $-, M:4/binary, $-, D:2/binary>>) ->
+binary_to_monthday(<<$-, $-, M:2/binary, $-, D:2/binary>>) ->
    {{0, typecast:i(M), typecast:i(D)}, {0, 0, 0}}.
 
 %%

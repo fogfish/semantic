@@ -29,6 +29,13 @@
    spo_xsd_datetime_human/1,
    spo_xsd_date/1,
    spo_xsd_date_human/1,
+   spo_xsd_time/1,
+   spo_xsd_time_human/1,
+   spo_xsd_yearmonth/1,
+   spo_xsd_monthday/1,
+   spo_xsd_year/1,
+   spo_xsd_month/1,
+   spo_xsd_day/1,
    spo_with_geopoint/1
 ]).
 
@@ -154,6 +161,76 @@ spo_xsd_date_human(_Config) ->
    } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
    datetime = semantic:native(T).
 
+
+spo_xsd_time(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"143405Z\"^^<http://www.w3.org/2001/XMLSchema#time> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{0, 0, 0}, {14, 34, 05}},
+      type := {iri, <<"xsd">>, <<"time">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_time_human(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"14:34:05Z\"^^<http://www.w3.org/2001/XMLSchema#time> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{0, 0, 0}, {14, 34, 05}},
+      type := {iri, <<"xsd">>, <<"time">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_yearmonth(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1970-01\"^^<http://www.w3.org/2001/XMLSchema#gYearMonth> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{1970, 1, 0}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"gYearMonth">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_monthday(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"--01-01\"^^<http://www.w3.org/2001/XMLSchema#gMonthDay> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{0, 1, 1}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"gMonthDay">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_year(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"1970\"^^<http://www.w3.org/2001/XMLSchema#gYear> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{1970, 0, 0}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"gYear">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_month(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"01\"^^<http://www.w3.org/2001/XMLSchema#gMonth> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{0, 1, 0}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"gMonth">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
+
+spo_xsd_day(_Config) ->
+   A = <<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"01\"^^<http://www.w3.org/2001/XMLSchema#gDay> .\n">>,
+   T = #{
+      s := {iri, <<"http://example.org/a">>},
+      p := {iri, <<"foaf">>, <<"name">>},
+      o := {{0, 0, 1}, {0, 0, 0}},
+      type := {iri, <<"xsd">>, <<"gDay">>}
+   } = maps:with([s,p,o,type], semantic:typed( decode(A) )),
+   datetime = semantic:native(T).
 
 spo_with_geopoint(_Config) ->
    A = <<"<http://example.org/a> <http://www.georss.org/georss/point> \"64.0 -150.0\" .\n">>,
