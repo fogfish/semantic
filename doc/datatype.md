@@ -135,7 +135,7 @@ Lang | Data type
 Erlang | `-type binary() | {lat(), lng()}.`
 Semantic | `?GEORSS_HASH`
 || `?GEORSS_POINT`
-Text | ueh6xc
+Text | "ueh6xc"^^georss:hash
 || 25.7,62.1
 RDF | xmlns:georss="http://www.georss.org/georss/point"
 || xmlns:georss="http://www.georss.org/georss/hash"
