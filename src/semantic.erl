@@ -180,7 +180,7 @@ to_json(Lit) ->
    semantic_typed:to_json(Lit).
 
 %%
-%% maps Erlang native term to json-format
+%% maps Erlang native term to text-format
 -spec to_text(lit()) -> binary().
 
 to_text(Lit) ->
