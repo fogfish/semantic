@@ -81,7 +81,9 @@ decode_xsd_decimal(Val) ->
 decode_xsd_boolean(<<"true">>) -> true;
 decode_xsd_boolean(<<"1">>) -> true;
 decode_xsd_boolean(<<"false">>) -> false;
-decode_xsd_boolean(<<"0">>) -> false.
+decode_xsd_boolean(<<"0">>) -> false;
+decode_xsd_boolean(true) -> true;
+decode_xsd_boolean(false) -> false.
 
 %%
 decode_xsd_datetime(<<
