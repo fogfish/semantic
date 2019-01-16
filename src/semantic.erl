@@ -31,6 +31,7 @@
    native/1,
    to_json/1,
    to_text/1,
+   as_text/2,
    schema/1,
    nt/1,
    jsonld/1,
@@ -177,14 +178,21 @@ native(Fact) ->
 -spec to_json(lit()) -> binary().
 
 to_json(Lit) ->
-   semantic_typed:to_json(Lit).
+   semantic_codec:encode_json(Lit).
 
 %%
 %% maps Erlang native term to text-format
 -spec to_text(lit()) -> binary().
 
 to_text(Lit) ->
-   semantic_typed:to_text(Lit).
+   semantic_codec:encode_text(Lit).
+
+%%
+%% map textual string to Erlang native term
+-spec as_text(iri(), binary()) -> lit().
+
+as_text(Type, Text) ->
+   semantic_codec:decode(Type, Text).
 
 %%
 %% deduct schema of knowledge statements using actual knowledge statements

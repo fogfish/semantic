@@ -192,7 +192,7 @@ to_text_georss_point(_) ->
    <<"60.100000000,20.300000000">> = semantic:to_text({60.1,20.3}).
 
 to_text_georss_json(_) ->
-   <<"{type:\"Polygon\",coordinates:[[[20.300000000,60.100000000]]]}">> = semantic:to_text(
+   <<"{coordinates:[[[20.300000000,60.100000000]]],type:\"Polygon\"}">> = semantic:to_text(
       #{
          <<"type">> => <<"Polygon">>, 
          <<"coordinates">> => [[ [20.3,60.1] ]]
