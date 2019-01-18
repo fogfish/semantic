@@ -23,10 +23,12 @@
    decoder/1
 ]).
 
-all() ->
-   [
-      encoder,
-      decoder
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
 %%%----------------------------------------------------------------------------   

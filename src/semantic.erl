@@ -28,7 +28,11 @@
    absolute/1,
    typed/1,
    typeof/1,
-   deduct/1,
+   native/1,
+   to_json/1,
+   to_text/1,
+   as_text/2,
+   schema/1,
    nt/1,
    jsonld/1,
    fold/1
@@ -67,37 +71,42 @@
 -type suffix()   :: binary().
 
 %% literal data types
--type lit()      :: canonical() | semantic().
+-type lit()      :: xsd_string()
+                  | xsd_integer()
+                  | xsd_decimal()
+                  | xsd_boolean()
+                  | xsd_datetime()
+                  | xsd_date()
+                  | georss_point()
+                  | georss_hash()
+                  | georss_json()
+                  .
 
-%% canonical data types (Erlang built-in)
--type canonical():: atom() 
-                  | binary() 
-                  | float() 
-                  | integer()
-                  | boolean()
-                  | byte()
-                  | char().
+-type xsd_string()   :: binary().
+-type xsd_integer()  :: integer().
+-type xsd_decimal()  :: float().
+-type xsd_boolean()  :: boolean().
+-type xsd_datetime() :: {integer(), integer(), integer()}.
+-type xsd_date()     :: {{integer(), integer(), integer()}, {integer(), integer(), integer()}}.
+-type georss_point() :: {lat(), lng()} | binary().
+-type lat()          :: float().
+-type lng()          :: float().
+-type georss_hash()  :: binary().
+-type georss_json()  :: #{}.
 
-%% semantic data types extension
--type semantic() :: geohash()
-                  | datetime().
-
--type geohash()  :: binary().
--type geopoint() :: binary().
--type datetime() :: {integer(), integer(), integer()}.
-
+%% collections of facts
 -type heap(X)    :: X | [X] | _. 
 
 %%%------------------------------------------------------------------
 %%%
-%%% semantic public interface
+%%% semantic toolkit interface
 %%%
 %%%------------------------------------------------------------------
 
 %%
 %% start library RnD mode
 start() ->
-   applib:boot(?MODULE, []).
+   application:ensure_all_started(?MODULE).
 
 
 %%
@@ -140,7 +149,7 @@ absolute({iri, Prefix, Suffix}) ->
          {iri, <<Absolute/binary, Suffix/binary>>}
    end;
 absolute(IRI) ->
-   {iri, scalar:s(IRI)}.
+   {iri, typecast:s(IRI)}.
 
 
 %%
@@ -148,24 +157,75 @@ absolute(IRI) ->
 -spec typed( heap(spo()) ) -> heap(spock()).     
 
 typed(Facts) ->
-   semantic_typed:c(Facts).
-
+   semantic_heap:map(fun semantic_typed:compile/1, Facts).
 
 %%
-%% return Erlang native type of knowledge statement
--spec typeof(spock()) -> iri().
+%% deduct semantic type from Erlang native term
+-spec typeof(_) -> iri().
 
-typeof(Fact) ->
+typeof(Term) ->
+   semantic_typed:typeof(Term).
+
+%%
+%% deduct Erlang native type from knowledge statement
+-spec native(spock() | spo()) -> iri().
+
+native(Fact) ->
    semantic_typed:native(Fact).
 
+%%
+%% maps Erlang native term to json-format
+-spec to_json(lit()) -> binary().
+
+to_json(Lit) ->
+   semantic_codec:encode_json(Lit).
+
+%%
+%% maps Erlang native term to text-format
+-spec to_text(lit()) -> binary().
+
+to_text(Lit) ->
+   semantic_codec:encode_text(Lit).
+
+%%
+%% map textual string to Erlang native term
+-spec as_text(iri(), binary()) -> lit().
+
+as_text(Type, Text) ->
+   semantic_codec:decode(Type, Text).
 
 %%
 %% deduct schema of knowledge statements using actual knowledge statements
--spec deduct( heap(spock()) ) -> heap(_).
+-spec schema( heap(spock()) ) -> heap(_).
 
-deduct(Facts) ->
-   semantic_schema:deduct(Facts).
+schema(Facts) ->
+   gb_sets:to_list(
+      semantic_heap:fold(fun schema/2, gb_sets:new(), Facts)
+   ).
 
+schema(#{p := P, type := Type}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   {iri, _, _} = IsA = semantic:compact(Type),
+   gb_sets:union(gb_sets:from_list([{IRI, IsA}]), Set);
+
+schema(#{p := P}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   gb_sets:union(gb_sets:from_list([{IRI, ?XSD_ANYURI}]), Set);
+
+schema({{iri, _}, {iri, _} = P, {iri, _}}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   gb_sets:union(gb_sets:from_list([{IRI, ?XSD_ANYURI}]), Set);
+
+schema({{iri, _}, {iri, _} = P, {Type, _}}, Set) ->
+   {iri, _, _} = IRI = semantic:compact(P),
+   {iri, _, _} = IsA = semantic:compact(Type),
+   gb_sets:union(gb_sets:from_list([{IRI, IsA}]), Set).
+
+%%%------------------------------------------------------------------
+%%%
+%%% semantic codec
+%%%
+%%%------------------------------------------------------------------
 
 %%
 %% build stream of knowledge statements from n-triples.
@@ -193,7 +253,7 @@ jsonld(JsonLD) ->
    semantic_jsonld:decode(JsonLD).
 
 %%
-%%
+%% reduces stream of triples by folding object to set
 -spec fold(datum:stream()) -> datum:stream().
 
 fold(#stream{} = Stream) ->

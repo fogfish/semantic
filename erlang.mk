@@ -8,7 +8,7 @@
 ## @doc
 ##   This makefile is the wrapper of rebar to build and ship erlang software
 ##
-## @version 1.0.9
+## @version 1.0.10
 .PHONY: all compile test unit clean distclean run console mock-up mock-rm benchmark release dist
 
 APP := $(strip $(APP))
@@ -27,7 +27,7 @@ REL     = ${APP}-${VSN}
 PKG     = ${REL}+${ARCH}.${PLAT}
 TEST   ?= tests
 COOKIE ?= nocookie
-DOCKER ?= fogfish/erlang
+DOCKER ?= fogfish/erlang-alpine
 IID     = ${URI}${ORG}/${APP}
 
 ## required tools
@@ -148,6 +148,7 @@ mock-rm: test/mock/docker-compose.yml
 	-@docker-compose -f $< down --rmi all -v --remove-orphans
 
 dist-up: docker-compose.yml _build/spawner
+	@docker-compose build
 	@docker-compose -f $< up
 
 dist-rm: docker-compose.yml

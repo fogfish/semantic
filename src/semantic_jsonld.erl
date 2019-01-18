@@ -14,7 +14,9 @@
 %%   limitations under the License.
 %%
 -module(semantic_jsonld).
+
 -include("semantic.hrl").
+-compile({parse_transform, category}).
 
 -export([
    decode/1
@@ -59,15 +61,6 @@ spo(S, P, Type, O)
 spo(S, P, Type, O) ->
    {S, P, {Type, O}}.
 
-% spo(S, P, rel, O) ->
-%    {{iri, S}, {iri, P}, {iri, O}};
-
-% spo(S, P, undefined, O) ->
-%    {{iri, S}, {iri, P}, O};
-
-% spo(S, P, Type, O) ->
-%    {{iri, S}, {iri, P}, {Type, O}}.
-
 %%%------------------------------------------------------------------
 %%%
 %%% private
@@ -75,7 +68,8 @@ spo(S, P, Type, O) ->
 %%%------------------------------------------------------------------
 
 %%
-%%
+%% Note: codec return list of pure triples spo(), 
+%%       they always uses absolute URI for predicate
 context(Key, Context) ->
    case Context of
       % context term definition 
@@ -107,27 +101,9 @@ typeof(Key, Val, Context) ->
          ?XSD_ANYURI;
 
       #{Key := #{<<"@type">> := Type}} ->
-         case binary:split(Type, <<"://">>) of
-            [_, _] ->
-               semantic:absolute(Type);
-            [_] ->
-               semantic:compact(Type)
-         end;
+         [undefined || semantic:compact(Type), semantic:absolute(Type)];
 
-      % key is not defined at context
+      % key is not defined at context, deduct it
       _ ->
-         typeof(Val)
+         semantic:typeof(Val)
    end.
-
-
-typeof(Val) when is_binary(Val) -> ?XSD_STRING;
-typeof(Val) when is_integer(Val) -> ?XSD_INTEGER; 
-typeof(Val) when is_float(Val) -> ?XSD_DOUBLE;
-typeof(#{<<"type">> := <<"Point">>}) -> ?GEORSS_JSON;
-typeof(#{<<"type">> := <<"MultiPoint">>}) -> ?GEORSS_JSON;
-typeof(#{<<"type">> := <<"LineString">>}) -> ?GEORSS_JSON;
-typeof(#{<<"type">> := <<"MultiLineString">>}) -> ?GEORSS_JSON;
-typeof(#{<<"type">> := <<"Polygon">>}) -> ?GEORSS_JSON;
-typeof(#{<<"type">> := <<"MultiPolygon">>}) -> ?GEORSS_JSON;
-typeof(true) -> ?XSD_BOOLEAN;
-typeof(false) -> ?XSD_BOOLEAN. 

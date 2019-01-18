@@ -17,19 +17,7 @@
 -include_lib("common_test/include/ct.hrl").
 -include_lib("semantic/include/semantic.hrl").
 
-%%
-%% common test
--export([
-   all/0,
-   groups/0,
-   init_per_suite/1,
-   end_per_suite/1,
-   init_per_group/2,
-   end_per_group/2
-]).
-
-%%
-%% unit tests
+-export([all/0, init_per_suite/1, end_per_suite/1]).
 -export([
    json_string/1,
    json_integer/1,
@@ -37,59 +25,32 @@
    json_true/1,
    json_false/1,
 
+   json_id/1,
+   jsonld_id/1,
+   rdf_id/1,
    jsonld_anyuri/1,
-   jsonld_string/1
+   jsonld_string/1,
+   jsonld_strings/1,
+   jsonld_subst_compact_predicate/1,
+   jsonld_subst_absolute_predicate/1,
+   jsonld_subst_typed_predicate/1
 ]).
 
-%%%----------------------------------------------------------------------------   
-%%%
-%%% suite
-%%%
-%%%----------------------------------------------------------------------------   
-all() ->
-   [
-      {group, compile}
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
-groups() ->
-   [
-      {compile, [parallel], [
-         json_string,
-         json_integer,
-         json_double,
-         json_true,
-         json_false,
-
-         jsonld_anyuri,
-         jsonld_string
-      ]}
-   ].
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 init_per_suite(Config) ->
-   ok = semantic:start(),
+   {ok, _} = semantic:start(),
    Config.
 
 end_per_suite(_Config) ->
    ok.
 
-%% 
-%%
-init_per_group(_, Config) ->
-   Config.
-
-end_per_group(_, _Config) ->
-   ok.
-
-%%%----------------------------------------------------------------------------   
-%%%
-%%% init
-%%%
-%%%----------------------------------------------------------------------------   
 
 json_string(_) ->
    [{
@@ -115,7 +76,7 @@ json_double(_) ->
    [{
       {iri, <<"http://dbpedia.org/resource/a">>},
       {iri, <<"key">>},
-      {?XSD_DOUBLE, 1.0}
+      {?XSD_DECIMAL, 1.0}
    }] = semantic:jsonld(#{
       <<"@id">> => <<"http://dbpedia.org/resource/a">>,
       <<"key">> => 1.0
@@ -142,6 +103,35 @@ json_false(_) ->
    }).
 
 
+json_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
+
+jsonld_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
+
+rdf_id(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"value">>}
+   }] = semantic:jsonld(#{
+      <<"rdf:id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"value">>
+   }).
 
 jsonld_anyuri(_) ->
    [{
@@ -166,5 +156,68 @@ jsonld_string(_) ->
       <<"key">> => <<"test">>,
       <<"@context">> => #{
          <<"key">> => #{<<"@type">> => <<"xsd:string">>}
+      }
+   }).
+
+jsonld_strings(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"a">>}
+   },
+   {
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"b">>}
+   },
+   {
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"key">>},
+      {?XSD_STRING, <<"c">>}
+   }
+   ] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => [<<"a">>, <<"b">>, <<"c">>],
+      <<"@context">> => #{
+         <<"key">> => #{<<"@type">> => <<"xsd:string">>}
+      }
+   }).
+
+jsonld_subst_compact_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"foaf:name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => <<"foaf:name">>
+      }
+   }).
+
+jsonld_subst_absolute_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => <<"name">>
+      }
+   }).
+
+jsonld_subst_typed_predicate(_) ->
+   [{
+      {iri, <<"http://dbpedia.org/resource/a">>},
+      {iri, <<"foaf:name">>},
+      {?XSD_STRING, <<"test">>}
+   }] = semantic:jsonld(#{
+      <<"@id">> => <<"http://dbpedia.org/resource/a">>, 
+      <<"key">> => <<"test">>,
+      <<"@context">> => #{
+         <<"key">> => #{<<"@type">> => <<"xsd:string">>, <<"@id">> => <<"foaf:name">>}
       }
    }).

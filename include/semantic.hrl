@@ -32,6 +32,8 @@
 -define(RDF_DATATYPE,    {iri, ?RDF, <<"datatype">>}).
 -define(RDF_PROPERTY,    {iri, ?RDF, <<"Property">>}).
 -define(RDF_SEQ,         {iri, ?RDF, <<"Seq">>}).
+-define(RDF_MAP,         {iri, ?RDF, <<"Map">>}).
+-define(RDF_LIST,        {iri, ?RDF, <<"List">>}).
 -define(RDF_RANGE,       {iri, ?RDF, <<"range">>}).
 -define(RDF_LANG_STRING, {iri, ?RDF, <<"langString">>}).
 
@@ -75,8 +77,8 @@
 -define(XSD_DATE,        {iri, ?XSD, <<"date">>}).
 -define(XSD_TIME,        {iri, ?XSD, <<"time">>}).
 -define(XSD_YEARMONTH,   {iri, ?XSD, <<"gYearMonth">>}).
--define(XSD_YEAR,        {iri, ?XSD, <<"gYear">>}).
 -define(XSD_MONTHDAY,    {iri, ?XSD, <<"gMonthDay">>}).
+-define(XSD_YEAR,        {iri, ?XSD, <<"gYear">>}).
 -define(XSD_MONTH,       {iri, ?XSD, <<"gMonth">>}).
 -define(XSD_DAY,         {iri, ?XSD, <<"gDay">>}).
 
@@ -84,4 +86,5 @@
 -define(GEORSS_POINT,    {iri, <<"georss">>, <<"point">>}).
 -define(GEORSS_HASH,     {iri, <<"georss">>, <<"hash">>}).
 -define(GEORSS_JSON,     {iri, <<"georss">>, <<"json">>}).
+
 

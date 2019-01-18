@@ -18,8 +18,8 @@
 
 -export([all/0]).
 -export([
-   spo_with_uri/1,
-   spo_with_blanknodes/1,
+   spo_xsd_anyuri_absolute/1,
+   spo_xsd_anyuri_blanknodes/1,
    spo_with_lit/1,
    spo_with_lang/1,
    spo_with_type/1,
@@ -28,16 +28,12 @@
    spo_stream/1
 ]).
 
-all() ->
-   [
-      spo_with_uri,
-      spo_with_blanknodes,
-      spo_with_lit,
-      spo_with_lang,
-      spo_with_type,
-      spo_chunked_input,
-      spo_with_comment,
-      spo_stream
+all() -> 
+   [Test || {Test, NAry} <- ?MODULE:module_info(exports), 
+      Test =/= module_info,
+      Test =/= init_per_suite,
+      Test =/= end_per_suite,
+      NAry =:= 1
    ].
 
 %%%----------------------------------------------------------------------------   
@@ -46,7 +42,7 @@ all() ->
 %%%
 %%%----------------------------------------------------------------------------   
 
-spo_with_uri(_) ->
+spo_xsd_anyuri_absolute(_) ->
    A = <<"<http://example.org/a> <http://example.org/b> <http://example.org/c> .\n">>,
    {
       [{
@@ -57,7 +53,7 @@ spo_with_uri(_) ->
       {nt, <<>>}
    } = semantic_nt:decode(A, semantic_nt:new()).  
 
-spo_with_blanknodes(_) ->
+spo_xsd_anyuri_blanknodes(_) ->
    A = <<"_:a _:b _:c .\n">>,
    {
       [{

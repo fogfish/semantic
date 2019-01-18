@@ -3,19 +3,20 @@
 Semantic Web ToolKit for Erlang applications
 
 [![Build Status](https://secure.travis-ci.org/fogfish/semantic.svg?branch=master)](http://travis-ci.org/fogfish/semantic)
+[![Coverage Status](https://coveralls.io/repos/github/fogfish/semantic/badge.svg?branch=master)](https://coveralls.io/github/fogfish/semantic?branch=master) 
 
 ## Inspiration
 
-Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application and defines an data model (abstract syntax) to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement / triples. You can use it to build inter-operable Web services or store Linked Data in storage engines. The library solve a following aspects:
-* define Erlang native format for knowledge statement; its serialization to various external formats
+Linked-Data are used widely by Semantic Web to publish structured data so that it can be interlinked by application. The library provides toolkit for Erlang application, defines data models and abstract syntax to interpret and manipulate Linked-Data as a collection of ground facts / knowledge statement / triples. You can use it to build inter-operable Web services, data interfaces or persist Linked Data. The library solve a following aspects:
+* define [Erlang native formats](doc/datatype.md) for knowledge statement and its serialization formats
 * provide common rules for data type mapping between Semantic Web and Erlang application
-* resolve complexity of IRI identity through compact prefixes and urn-base schema
-
+* resolve complexity of IRI identity and provides build in database of semantic [name-spaces](priv/prefixes.nt)
+* implements Semantic codecs for N-Triple, JSON-LD and pure JSON formats.
 
 
 ## Getting started
 
-The latest version of the library is available at its master branch. All development, including new features and bug fixes, take place on the master branch using forking and pull requests as described in contribution guidelines.
+The latest version of the library is available at its `master` branch. All development, including new features and bug fixes, take place on the `master` branch using forking and pull requests as described in contribution guidelines.
 
 ### Installation
 
@@ -37,18 +38,16 @@ make run
 ```
 
 Let's take a short tour to the library
+
 ```erlang
 %% start library and configure built-in prefixes for compact IRI/URI 
 semantic:start().
 
-%% intake knowledge fact from N-triple data source
-A = stream:head(semantic:nt(<<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>)).
+%% decode stream of N-triples 
+A = semantic:nt(<<"<http://example.org/a> <http://xmlns.com/foaf/0.1/name> \"text\"@en .\n">>).
 
 %% compile generic triple to native type-safe representation
 B = semantic:typed(A).
-
-%% check the type of statement
-semantic:typeof(B).
 
 %% intake knowledge fact from JSON-LD data source
 JsonLD = #{
@@ -56,11 +55,8 @@ JsonLD = #{
    <<"@id">> => <<"http://example.org/a">>,
    <<"price">> => 20
 }.
-C = hd(semantic:jsonld(JsonLD)).
+C = semantic:jsonld(JsonLD).
 D = semantic:typed(C). 
-
-%% check the type of statement
-semantic:typeof(D).
 ``` 
 
 
@@ -75,6 +71,13 @@ The library expresses knowledge fact(s) using map as 'type-safe' container type 
 -type spo()  :: #{s => s(), p => p(), o => o(), type => lang() | type()}.
 ```
 
+```erlang
+%% deduct semantic type from Erlang native term
+{iri, <<"xsd">>, <<"integer">>} = semantic:typeof(1).
+
+%% deduct Erlang native type from knowledge statement
+iri = semantic:native({{iri, <<"a">>}, {iri, <<"b">>}, {iri, <<"c">>}}).
+``` 
 
 ### Compact identifiers
 
@@ -84,10 +87,15 @@ Compact identifiers is an approach to reduce IRI / URI overhead using `<prefix> 
 http://xmlns.com/foaf/0.1/name  ->  foaf:name
 ```
 
+```erlang
+{iri, <<"foaf">>, <<"name">>} = semantic:compact({iri, <<"http://xmlns.com/foaf/0.1/name">>}).
+{iri, <<"http://xmlns.com/foaf/0.1/name">>} = semantic:absolute({iri, <<"foaf">>, <<"name">>}).
+```
+
 
 ### Knowledge intake
 
-The library supports multiple external serialization formats for knowledge intake:
+The library supports multiple external formats for knowledge intake:
 * N-triples
 * JSON-LD
 
@@ -98,7 +106,6 @@ The library supports multiple external serialization formats for knowledge intak
 * [JSON-LD 1.0 -- A JSON-based Serialization for Linked Data](http://www.w3.org/TR/json-ld/)
 * study [native interface](src/semantic.erl)
 * supported [data type](doc/datatype.md)
-* look into [how-to examples](doc/howto.md)
 
 
 ## How to Contribute
