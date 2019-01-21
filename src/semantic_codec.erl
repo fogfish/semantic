@@ -159,6 +159,7 @@ decode_georss_json(#{<<"type">> := _, <<"coordinates">> := _} = Json) ->
 
 %%
 %%
+encode_json(undefined) -> undefined;
 encode_json({iri, IRI}) -> IRI;
 encode_json({iri, _, _} = IRI) -> encode_xsd_anyuri(IRI);
 encode_json(Lit) when is_binary(Lit) -> Lit;
