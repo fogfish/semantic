@@ -257,15 +257,19 @@ jsonld(JsonLD) ->
 -spec fold(datum:stream()) -> datum:stream().
 
 fold(#stream{} = Stream) ->
-   stream:unfold(fun foldp/1, Stream).
+   stream:unfold(fun folds/1, Stream);
+fold(Stream)
+ when is_list(Stream) ->
+   foldl(Stream).
 
-foldp(Stream) ->
-   foldp(stream:head(Stream), Stream).
 
-foldp(_, ?stream()) ->
+folds(Stream) ->
+   folds(stream:head(Stream), Stream).
+
+folds(_, ?stream()) ->
    stream:new();
 
-foldp(#{s := S, p := P, type := Type} = Spock, Stream) ->
+folds(#{s := S, p := P, type := Type} = Spock, Stream) ->
    {Head, Tail} = stream:splitwhile(
       fun(#{s := Sx, p := Px, type := TypeX}) ->
          S =:= Sx andalso P =:= Px andalso Type =:= TypeX
@@ -280,5 +284,23 @@ foldp(#{s := S, p := P, type := Type} = Spock, Stream) ->
    end.
 
 
+foldl([#{s := S, p := P, type := Type} = Spock | _] = Stream) ->
+   {Head, Tail} = lists:splitwith(
+      fun(#{s := Sx, p := Px, type := TypeX}) ->
+         S =:= Sx andalso P =:= Px andalso Type =:= TypeX
+      end,
+      Stream
+   ),
+   case [X || #{o := X} <- Head] of
+      [O] ->
+         [Spock#{o =>   O} | foldl(Tail)];
+      Set ->
+         [Spock#{o => Set} | foldl(Tail)]
+   end;
+
+foldl([]) ->
+   [].
+
+   
 
 
