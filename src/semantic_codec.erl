@@ -230,7 +230,7 @@ encode_xsd_anyuri({iri, Prefix, Suffix}) ->
    <<Prefix/binary, $:, Suffix/binary>>.
 
 %%
-encode_xsd_datetime(A, B, C) ->
+encode_xsd_datetime(A, B, _C) ->
    Seconds = A * ?BASE + B,
    {{Y, M, D}, {T, N, S}} = calendar:gregorian_seconds_to_datetime(Seconds + ?UNX_EPOCH),
    <<(encode_xsd_date(Y, M, D))/binary, $T, (encode_xsd_time(T, N, S))/binary>>.
